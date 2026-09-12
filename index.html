@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solo Leveling System</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --panel-bg: #161b22;
+            --border-color: #30363d;
+            --text-main: #c9d1d9;
+            --text-muted: #8b949e;
+            --accent-green: #238636;
+            --accent-green-hover: #2ea043;
+            --accent-glow: rgba(35, 134, 54, 0.4);
+            --danger-color: #da3633;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .header-panel {
+            border-left: 4px solid var(--accent-green);
+        }
+
+        h1, h2, h3 {
+            color: #ffffff;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .progress-bar-bg {
+            background-color: #21262d;
+            border: 1px solid var(--border-color);
+            height: 12px;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar-fill {
+            background-color: var(--accent-green);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .task-item input[type="checkbox"] {
+            accent-color: var(--accent-green);
+            width: 18px;
+            height: 18px;
+        }
+
+        .btn {
+            background-color: var(--accent-green);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-green-hover);
+        }
+
+        .btn-rest {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+        }
+
+        .btn-rest:hover {
+            border-color: var(--text-main);
+            color: var(--text-main);
+            background-color: #21262d;
+        }
+
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .activity-cell {
+            background-color: #21262d;
+            aspect-ratio: 1;
+            border-radius: 2px;
+            border: 1px solid var(--border-color);
+        }
+
+        .activity-cell.active {
+            background-color: var(--accent-green);
+            border-color: #2ea043;
+        }
+
+        .day-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- SYSTEM STATUS -->
+        <div class="panel header-panel">
+            <h1>⚔ SOLO LEVELING SYSTEM</h1>
+            <div class="status-row">
+                <span>PLAYER LV. 07</span>
+                <span>EXP 72%</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" style="width: 72%;"></div>
+            </div>
+        </div>
+
+        <!-- WEEKLY QUEST -->
+        <div class="panel">
+            <h3>WEEKLY QUEST (SEP 14 — SEP 20)</h3>
+            
+            <div class="status-row"><span>HAND (手)</span><span id="hand-count">0 / 2</span></div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" id="hand-bar" style="width: 0%;"></div></div>
+
+            <div class="status-row"><span>LEG (腿)</span><span id="leg-count">0 / 2</span></div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" id="leg-bar" style="width: 0%;"></div></div>
+
+            <div class="status-row"><span>CORE + CARDIO (肚子+有氧)</span><span id="core-count">0 / 2</span></div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" id="core-bar" style="width: 0%;"></div></div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 15px 0;">
+
+            <div class="status-row"><span>TOTAL TRAINING: <strong id="total-training">0</strong> / 6</span><span>REST DAY: <strong id="rest-count">0</strong> / 1</span></div>
+        </div>
+
+        <!-- TODAY QUEST -->
+        <div class="panel">
+            <h3>TODAY · MON SEP 14</h3>
+            
+            <div class="task-item">
+                <input type="checkbox" id="task-meditation">
+                <label for="task-meditation">MEDITATION (冥想 10分)</label>
+            </div>
+
+            <div class="task-item" style="flex-direction: column; align-items: flex-start; background: #21262d; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                    <input type="checkbox" id="task-bjj">
+                    <label for="task-bjj">BJJ / 柔術影片 (30 MIN)</label>
+                </div>
+                <input type="text" placeholder="今天看了什麼？" style="width: 100%; margin-top: 8px; background: var(--bg-color); border: 1px solid var(--border-color); color: white; padding: 6px; border-radius: 4px;">
+            </div>
+
+            <div style="margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 5px;">TODAY'S SCHEDULED TRAINING</div>
+                <div id="today-target" style="font-size: 1.2rem; font-weight: bold; color: #fff; margin-bottom: 10px;">💪 HAND TRAINING (手)</div>
+                <button class="btn" onclick="completeTraining()">COMPLETE TRAINING</button>
+                <button class="btn btn-rest" onclick="enterRestMode()">ENTER REST MODE (休息)</button>
+            </div>
+        </div>
+
+        <!-- ACTIVITY CONTRIBUTION -->
+        <div class="panel">
+            <h3>ACTIVITY CONTRIBUTION</h3>
+            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 4px;">
+                <div class="day-label">MON</div>
+                <div class="day-label">TUE</div>
+                <div class="day-label">WED</div>
+                <div class="day-label">THU</div>
+                <div class="day-label">FRI</div>
+                <div class="day-label">SAT</div>
+                <div class="day-label">SUN</div>
+            </div>
+            <div class="activity-grid" id="activity-grid">
+                <!-- 7 days demo cells -->
+                <div class="activity-cell active"></div>
+                <div class="activity-cell active"></div>
+                <div class="activity-cell"></div>
+                <div class="activity-cell"></div>
+                <div class="activity-cell"></div>
+                <div class="activity-cell"></div>
+                <div class="activity-cell"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let stats = { hand: 0, leg: 0, core: 0, rest: 0 };
+
+        function completeTraining() {
+            if (stats.hand < 2) {
+                stats.hand++;
+                document.getElementById('hand-count').innerText = stats.hand + " / 2";
+                document.getElementById('hand-bar').style.width = (stats.hand / 2 * 100) + "%";
+            } else if (stats.leg < 2) {
+                stats.leg++;
+                document.getElementById('leg-count').innerText = stats.leg + " / 2";
+                document.getElementById('leg-bar').style.width = (stats.leg / 2 * 100) + "%";
+            } else if (stats.core < 2) {
+                stats.core++;
+                document.getElementById('core-count').innerText = stats.core + " / 2";
+                document.getElementById('core-bar').style.width = (stats.core / 2 * 100) + "%";
+            }
+            let total = stats.hand + stats.leg + stats.core;
+            document.getElementById('total-training').innerText = total;
+            alert("SYSTEM: 訓練已完成，EXP +100");
+        }
+
+        function enterRestMode() {
+            if (stats.rest < 1) {
+                stats.rest++;
+                document.getElementById('rest-count').innerText = stats.rest;
+                alert("⚠ REST MODE ACTIVATED: 今日訓練已順延，休息額度已紀錄。");
+            } else {
+                alert("本週休息額度已用完！");
+            }
+        }
+    </script>
+</body>
+</html>
