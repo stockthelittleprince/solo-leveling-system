@@ -294,7 +294,7 @@
                 <div style="font-size: 0.8rem; color: var(--text-muted);" id="date-label">SAT, SEP 12</div>
             </div>
             
-            <!-- 今日建議訓練項目指示器 (不含繁雜細節，直接告訴你今天主打Hand、Leg還是Core) -->
+            <!-- 今日建議訓練項目指示器 -->
             <div style="background: rgba(0, 240, 255, 0.08); border: 1px solid var(--accent-cyan); padding: 8px 12px; border-radius: 4px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-size: 0.8rem; color: var(--text-muted);">TODAY'S FOCUS:</span>
                 <span id="today-focus-text" style="font-size: 0.9rem; font-weight: bold; color: var(--accent-cyan);">⚡ CORE + CARDIO (核心與有氧)</span>
@@ -335,17 +335,18 @@
 
                 <button class="btn" onclick="completeTraining()">COMPLETE TRAINING (+1 PROGRESS)</button>
                 <button class="btn btn-rest" onclick="enterRestMode()">ENTER REST MODE (休息)</button>
+                <!-- 新增：手殘按錯時可以隨時取消休息模式 -->
+                <button class="btn btn-rest" style="border-color: rgba(239, 68, 68, 0.4); color: #fca5a5; margin-top: 4px;" onclick="cancelRestMode()">CANCEL REST (取消休息)</button>
             </div>
         </div>
     </div>
 
     <script>
         const now = new Date();
-        const dayOfWeek = now.getDay(); // 0:日, 1:一, 2:二...
+        const dayOfWeek = now.getDay();
         const options = { weekday: 'short', month: 'short', day: 'numeric' };
         document.getElementById('date-label').innerText = now.toLocaleDateString('en-US', options).toUpperCase();
 
-        // 根據星期幾顯示今天主要練習項目（手、腿、核心）
         const focusMap = {
             1: "💪 HAND (手部訓練)",
             2: "🦵 LEG (腿部訓練)",
@@ -357,7 +358,6 @@
         };
         document.getElementById('today-focus-text').innerText = focusMap[dayOfWeek];
 
-        // 計算當年度第幾週（用來判斷是否跨週自動重置）
         function getWeekNumber(d) {
             d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
             d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
@@ -367,7 +367,6 @@
         }
         const currentWeekNumber = getWeekNumber(now);
 
-        // 資料結構與 LocalStorage 載入
         let data = JSON.parse(localStorage.getItem('solo_system_data')) || {
             level: 7,
             exp: 72,
@@ -385,7 +384,6 @@
             lastWeek: currentWeekNumber
         };
 
-        // 每週一（或跨週）自動重置訓練次數
         if (data.lastWeek !== currentWeekNumber) {
             data.hand = 0;
             data.leg = 0;
@@ -484,6 +482,20 @@
                 updateUI();
             } else {
                 alert("本週休息額度已用完！");
+            }
+        }
+
+        // 新增：取消休息模式並扣回剛剛多加的微幅體力
+        function cancelRestMode() {
+            if (data.rest > 0) {
+                data.rest = 0;
+                data.vit = Math.max(10, data.vit - 0.1); // 扣回休息送的微幅體力，避免被刷分
+                triggerFlash();
+                alert("SYSTEM: 已取消休息模式，恢復訓練狀態。");
+                saveData();
+                updateUI();
+            } else {
+                alert("目前並未處於休息狀態！");
             }
         }
 
