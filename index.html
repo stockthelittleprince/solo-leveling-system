@@ -294,6 +294,12 @@
                 <div style="font-size: 0.8rem; color: var(--text-muted);" id="date-label">SAT, SEP 12</div>
             </div>
             
+            <!-- 今日建議訓練項目指示器 (不含繁雜細節，直接告訴你今天主打Hand、Leg還是Core) -->
+            <div style="background: rgba(0, 240, 255, 0.08); border: 1px solid var(--accent-cyan); padding: 8px 12px; border-radius: 4px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.8rem; color: var(--text-muted);">TODAY'S FOCUS:</span>
+                <span id="today-focus-text" style="font-size: 0.9rem; font-weight: bold; color: var(--accent-cyan);">⚡ CORE + CARDIO (核心與有氧)</span>
+            </div>
+
             <!-- 冥想 -->
             <div class="task-box">
                 <div class="task-item">
@@ -311,7 +317,7 @@
                 <input type="text" id="bjj-note" placeholder="輸入今天學習心得或動作筆記..." oninput="saveData()">
             </div>
 
-            <!-- 體能訓練進度 (使用你自己的配額架構) -->
+            <!-- 體能訓練進度 -->
             <div style="margin-top: 10px; border-top: 1px solid rgba(0,240,255,0.2); padding-top: 10px;">
                 <div class="status-row"><span>HAND (手)</span><span id="hand-count">0 / 2</span></div>
                 <div class="progress-bar-bg"><div class="progress-bar-fill" id="hand-bar" style="width: 0%;"></div></div>
@@ -335,21 +341,31 @@
 
     <script>
         const now = new Date();
+        const dayOfWeek = now.getDay(); // 0:日, 1:一, 2:二...
         const options = { weekday: 'short', month: 'short', day: 'numeric' };
         document.getElementById('date-label').innerText = now.toLocaleDateString('en-US', options).toUpperCase();
 
-        // 取得今天是幾號的星期幾 (用來判定是否跨週)
-        const currentYear = now.getFullYear();
-        const currentWeekNumber = getWeekNumber(now);
+        // 根據星期幾顯示今天主要練習項目（手、腿、核心）
+        const focusMap = {
+            1: "💪 HAND (手部訓練)",
+            2: "🦵 LEG (腿部訓練)",
+            3: "⚡ CORE + CARDIO (核心與有氧)",
+            4: "💪 HAND (手部訓練)",
+            5: "🦵 LEG (腿部訓練)",
+            6: "⚡ CORE + CARDIO (核心與有氧)",
+            0: "🛡️ REST DAY (彈性休息日)"
+        };
+        document.getElementById('today-focus-text').innerText = focusMap[dayOfWeek];
 
+        // 計算當年度第幾週（用來判斷是否跨週自動重置）
         function getWeekNumber(d) {
-            // 計算當年度第幾週的簡單輔助函數
             d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
             d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
-            var yearStart = new Date(Date.UTC(d.getUTCFolder && 0 || d.getFullYear(),0,1));
-            var weekNo = Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
+            var yearStart = new Date(Date.UTC(d.getFullYear(),0,1));
+            var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1)/7);
             return `${d.getFullYear()}-W${weekNo}`;
         }
+        const currentWeekNumber = getWeekNumber(now);
 
         // 資料結構與 LocalStorage 載入
         let data = JSON.parse(localStorage.getItem('solo_system_data')) || {
@@ -369,7 +385,7 @@
             lastWeek: currentWeekNumber
         };
 
-        // 檢查是否已經進入新的一週（每週一自動重置訓練次數）
+        // 每週一（或跨週）自動重置訓練次數
         if (data.lastWeek !== currentWeekNumber) {
             data.hand = 0;
             data.leg = 0;
@@ -431,7 +447,6 @@
         function completeTraining() {
             triggerFlash();
             
-            // 點擊後依序遞增你的訓練項目 (HAND -> LEG -> CORE)
             if (data.hand < 2) { 
                 data.hand++; 
                 data.str += 0.2; 
