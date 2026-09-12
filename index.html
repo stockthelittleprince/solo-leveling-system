@@ -12,7 +12,6 @@
             --text-main: #e2e8f0;
             --text-muted: #94a3b8;
             --accent-cyan: #00f0ff;
-            --accent-green: #10b981;
         }
 
         * {
@@ -137,7 +136,6 @@
             box-shadow: 0 0 10px var(--accent-cyan);
         }
 
-        /* 屬性點數小看板 */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -239,7 +237,6 @@
             box-shadow: none;
         }
 
-        /* 點擊閃爍特效 */
         @keyframes flashEffect {
             0% { border-color: #fff; box-shadow: 0 0 40px #fff; }
             100% { border-color: var(--accent-cyan); box-shadow: 0 0 30px var(--panel-glow); }
@@ -266,7 +263,7 @@
                 <div class="progress-bar-fill" id="exp-bar" style="width: 72%;"></div>
             </div>
 
-            <!-- 微幅成長屬性表 (STR力量, AGI敏捷, VIT體力, INT感知) -->
+            <!-- 微幅成長屬性表 -->
             <div class="stats-grid">
                 <div class="stat-box">
                     <div class="stat-label">STR 力量</div>
@@ -287,7 +284,7 @@
             </div>
         </div>
 
-        <!-- 每日任務與具體內容通知視窗 -->
+        <!-- 每日任務面板 -->
         <div class="system-notification" id="quest-panel">
             <div class="notif-header">
                 <div class="notif-title-group">
@@ -297,17 +294,6 @@
                 <div style="font-size: 0.8rem; color: var(--text-muted);" id="date-label">SAT, SEP 12</div>
             </div>
             
-            <!-- 今日具體訓練菜單 -->
-            <div style="background: rgba(0, 240, 255, 0.08); border: 1px solid var(--accent-cyan); padding: 10px; border-radius: 4px; margin-bottom: 10px;">
-                <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 2px;">TODAY'S SCHEDULED WORKOUT</div>
-                <div id="today-workout-title" style="font-size: 1rem; font-weight: bold; color: var(--accent-cyan); margin-bottom: 4px;">⚡ CORE + CARDIO (核心與有氧)</div>
-                <div id="today-workout-details" style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.3;">
-                    • 棒式 (Plank): 3組 × 60秒<br>
-                    • 仰臥抬腿: 3組 × 15次<br>
-                    • 高強度間歇有氧 (HIIT): 15分鐘
-                </div>
-            </div>
-
             <!-- 冥想 -->
             <div class="task-box">
                 <div class="task-item">
@@ -325,7 +311,7 @@
                 <input type="text" id="bjj-note" placeholder="輸入今天學習心得或動作筆記..." oninput="saveData()">
             </div>
 
-            <!-- 體能訓練進度 -->
+            <!-- 體能訓練進度 (使用你自己的配額架構) -->
             <div style="margin-top: 10px; border-top: 1px solid rgba(0,240,255,0.2); padding-top: 10px;">
                 <div class="status-row"><span>HAND (手)</span><span id="hand-count">0 / 2</span></div>
                 <div class="progress-bar-bg"><div class="progress-bar-fill" id="hand-bar" style="width: 0%;"></div></div>
@@ -348,26 +334,22 @@
     </div>
 
     <script>
-        // 每週訓練菜單與對應的具體動作內容
-        const workoutSchedules = {
-            1: { name: "💪 HAND TRAINING (手部訓練)", details: "• 伏地挺身 (Push-ups): 4組 × 20次<br>• 啞鈴推舉 / 夾胸: 3組 × 12次<br>• 二頭彎舉: 3組 × 15次" },
-            2: { name: "🦵 LEG TRAINING (腿部訓練)", details: "• 深蹲 (Squats): 4組 × 20次<br>• 弓箭步 (Lunges): 3組 × 每邊12次<br>• 提踵練習: 3組 × 25次" },
-            3: { name: "⚡ CORE + CARDIO (核心與有氧)", details: "• 棒式 (Plank): 3組 × 60秒<br>• 仰臥抬腿: 3組 × 15次<br>• 有氧慢跑或跳繩: 15-20分鐘" },
-            4: { name: "💪 HAND TRAINING (手部訓練)", details: "• 伏地挺身 (Push-ups): 4組 × 20次<br>• 啞鈴側平舉: 3組 × 15次<br>• 核心對抗訓練: 3組" },
-            5: { name: "🦵 LEG TRAINING (腿部訓練)", details: "• 深蹲 (Squats): 4組 × 20次<br>• 徒手跳深蹲: 3組 × 10次<br>• 橋式訓練: 3組 × 20次" },
-            6: { name: "⚡ CORE + CARDIO (核心與有氧)", details: "• 棒式 (Plank): 3組 × 60秒<br>• 俄羅斯轉體: 3組 × 30下<br>• 高強度間歇有氧 (HIIT): 15分鐘" },
-            0: { name: "🛡️ REST DAY (彈性休息日)", details: "• 今日為彈性休息日<br>• 請保持身心放鬆，可進行冥想或伸展" }
-        };
-
         const now = new Date();
-        const dayOfWeek = now.getDay();
         const options = { weekday: 'short', month: 'short', day: 'numeric' };
         document.getElementById('date-label').innerText = now.toLocaleDateString('en-US', options).toUpperCase();
-        
-        // 載入當日菜單
-        const todayInfo = workoutSchedules[dayOfWeek];
-        document.getElementById('today-workout-title').innerText = todayInfo.name;
-        document.getElementById('today-workout-details').innerHTML = todayInfo.details;
+
+        // 取得今天是幾號的星期幾 (用來判定是否跨週)
+        const currentYear = now.getFullYear();
+        const currentWeekNumber = getWeekNumber(now);
+
+        function getWeekNumber(d) {
+            // 計算當年度第幾週的簡單輔助函數
+            d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+            var yearStart = new Date(Date.UTC(d.getUTCFolder && 0 || d.getFullYear(),0,1));
+            var weekNo = Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
+            return `${d.getFullYear()}-W${weekNo}`;
+        }
 
         // 資料結構與 LocalStorage 載入
         let data = JSON.parse(localStorage.getItem('solo_system_data')) || {
@@ -383,8 +365,21 @@
             rest: 0,
             meditation: false,
             bjj: false,
-            bjjNote: ""
+            bjjNote: "",
+            lastWeek: currentWeekNumber
         };
+
+        // 檢查是否已經進入新的一週（每週一自動重置訓練次數）
+        if (data.lastWeek !== currentWeekNumber) {
+            data.hand = 0;
+            data.leg = 0;
+            data.core = 0;
+            data.rest = 0;
+            data.meditation = false;
+            data.bjj = false;
+            data.lastWeek = currentWeekNumber;
+            localStorage.setItem('solo_system_data', JSON.stringify(data));
+        }
 
         function updateUI() {
             document.getElementById('player-level-text').innerText = `PLAYER LV. ${data.level < 10 ? '0' + data.level : data.level}`;
@@ -413,7 +408,6 @@
             document.getElementById('task-bjj').checked = data.bjj;
             document.getElementById('bjj-note').value = data.bjjNote;
 
-            // 頭銜解鎖機制 (成就系統)
             let title = "覺醒者";
             if (data.level >= 10) title = "二階獵人";
             if (total >= 4) title = "超越極限者";
@@ -437,23 +431,28 @@
         function completeTraining() {
             triggerFlash();
             
-            // 依照當天屬性自動增加微幅數值 (不誇張，每次 +0.1 ~ +0.2)
-            if (dayOfWeek === 1 || dayOfWeek === 4) {
-                if (data.hand < 2) { data.hand++; data.str += 0.2; }
-            } else if (dayOfWeek === 2 || dayOfWeek === 5) {
-                if (data.leg < 2) { data.leg++; data.vit += 0.2; }
+            // 點擊後依序遞增你的訓練項目 (HAND -> LEG -> CORE)
+            if (data.hand < 2) { 
+                data.hand++; 
+                data.str += 0.2; 
+            } else if (data.leg < 2) { 
+                data.leg++; 
+                data.vit += 0.2; 
+            } else if (data.core < 2) { 
+                data.core++; 
+                data.agi += 0.15; 
             } else {
-                if (data.core < 2) { data.core++; data.agi += 0.15; data.vit += 0.1; }
+                alert("本週訓練配額已全部完成！");
+                return;
             }
 
-            // 微幅 EXP 成長與升級判定
             data.exp += 15;
             if (data.exp >= 100) {
                 data.level++;
                 data.exp = 0;
-                alert(`🎉 恭喜！等級提升至 LV. ${data.level}！系統已發放全體能力微幅提升獎勵！`);
+                alert(`🎉 恭喜！等級提升至 LV. ${data.level}！`);
             } else {
-                alert("SYSTEM: 訓練進度登錄成功，EXP +15，體能微幅提升。");
+                alert("SYSTEM: 訓練進度登錄成功，EXP +15。");
             }
 
             saveData();
@@ -463,9 +462,9 @@
         function enterRestMode() {
             if (data.rest < 1) {
                 data.rest++;
-                data.vit += 0.1; // 休息恢復體力微幅上升
+                data.vit += 0.1;
                 triggerFlash();
-                alert("⚠ REST MODE ACTIVATED: 本週休息額度已使用，恢復微量狀態。");
+                alert("⚠ REST MODE ACTIVATED: 本週休息額度已使用。");
                 saveData();
                 updateUI();
             } else {
@@ -473,7 +472,6 @@
             }
         }
 
-        // 初始化套用
         updateUI();
     </script>
 </body>
