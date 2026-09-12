@@ -132,6 +132,7 @@
             border: 1px solid rgba(56, 189, 248, 0.3);
             padding: 2px 8px;
             border-radius: 4px;
+            letter-spacing: 1px;
         }
 
         .status-row {
@@ -176,6 +177,7 @@
         .stat-label {
             font-size: 0.75rem;
             color: var(--text-muted);
+            letter-spacing: 1px;
         }
 
         .stat-value {
@@ -197,6 +199,8 @@
             align-items: center;
             gap: 10px;
             font-size: 0.9rem;
+            letter-spacing: 1px;
+            color: var(--text-main);
         }
 
         .task-item input[type="checkbox"] {
@@ -280,6 +284,7 @@
             display: none;
             justify-content: space-between;
             align-items: center;
+            letter-spacing: 1px;
         }
         .secret-quest-banner.active {
             display: flex;
@@ -311,6 +316,7 @@
             color: var(--text-muted);
             margin-bottom: 4px;
             font-weight: bold;
+            letter-spacing: 1px;
         }
 
         .day-card.today .day-name {
@@ -322,6 +328,7 @@
             padding: 2px 0;
             border-radius: 2px;
             font-weight: bold;
+            letter-spacing: 0.5px;
         }
 
         .status-success { color: #4ade80; background: rgba(74, 222, 128, 0.1); }
@@ -344,10 +351,10 @@
         <!-- 玩家狀態與屬性面板 -->
         <div class="system-notification" id="status-panel" style="padding: 15px 20px;">
             <div class="notif-header" style="margin-bottom: 8px; border-bottom: none; padding-bottom: 0;">
-                <span style="color: var(--accent-cyan); font-weight: bold; font-size: 0.95rem;" id="player-level-text">PLAYER LV. 07</span>
-                <span class="player-title-badge" id="player-title">頭銜：覺醒者</span>
+                <span style="color: var(--accent-cyan); font-weight: bold; font-size: 0.95rem; letter-spacing: 1px;" id="player-level-text">PLAYER LV. 07</span>
+                <span class="player-title-badge" id="player-title">TITLE: AWAKENED</span>
             </div>
-            <div class="status-row" style="font-size: 0.85rem; margin-bottom: 4px;">
+            <div class="status-row" style="font-size: 0.85rem; margin-bottom: 4px; letter-spacing: 1px;">
                 <span>EXP</span>
                 <span id="exp-text">72%</span>
             </div>
@@ -358,19 +365,19 @@
             <!-- 屬性表 -->
             <div class="stats-grid">
                 <div class="stat-box">
-                    <div class="stat-label">STR 力量</div>
+                    <div class="stat-label">STR</div>
                     <div class="stat-value" id="stat-str">12.4</div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-label">AGI 敏捷</div>
+                    <div class="stat-label">AGI</div>
                     <div class="stat-value" id="stat-agi">11.1</div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-label">VIT 體力</div>
+                    <div class="stat-label">VIT</div>
                     <div class="stat-value" id="stat-vit">13.0</div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-label">INT 感知</div>
+                    <div class="stat-label">INT</div>
                     <div class="stat-value" id="stat-int">10.5</div>
                 </div>
             </div>
@@ -383,19 +390,19 @@
                     <div class="notif-icon" id="notif-icon-symbol">!</div>
                     <div class="notif-title" id="notif-main-title">NOTIFICATION</div>
                 </div>
-                <div style="font-size: 0.8rem; color: var(--text-muted);" id="date-label">SAT, SEP 12</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); letter-spacing: 1px;" id="date-label">SAT, SEP 12</div>
             </div>
             
             <!-- 隱藏任務提示器 -->
             <div class="secret-quest-banner" id="secret-quest-banner">
                 <span style="font-size: 0.8rem; color: #c084fc;">🔮 SECRET QUEST AVAILABLE</span>
-                <button onclick="claimSecretQuest()" style="background: #9333ea; color: white; border: none; padding: 2px 8px; border-radius: 3px; font-size: 0.75rem; cursor: pointer; font-weight: bold;">領取 (+20 EXP)</button>
+                <button onclick="claimSecretQuest()" style="background: #9333ea; color: white; border: none; padding: 2px 8px; border-radius: 3px; font-size: 0.75rem; cursor: pointer; font-weight: bold; letter-spacing: 1px;">CLAIM (+20 EXP)</button>
             </div>
 
-            <!-- 今日建議訓練項目指示器 -->
+            <!-- 今日訓練項目指示器 -->
             <div style="background: rgba(0, 240, 255, 0.08); border: 1px solid var(--accent-cyan); padding: 8px 12px; border-radius: 4px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-size: 0.8rem; color: var(--text-muted);">TODAY'S FOCUS:</span>
-                <span id="today-focus-text" style="font-size: 0.9rem; font-weight: bold; color: var(--accent-cyan);">⚡ CORE + CARDIO (核心與有氧)</span>
+                <span style="font-size: 0.8rem; color: var(--text-muted); letter-spacing: 1px;">TODAY'S FOCUS:</span>
+                <span id="today-focus-text" style="font-size: 0.9rem; font-weight: bold; color: var(--accent-cyan); letter-spacing: 1px;">⚡ CORE + CARDIO</span>
             </div>
 
             <!-- 作息獨立打卡區：05:00 起床 & 22:30 就寢 -->
@@ -403,13 +410,13 @@
                 <div class="task-box" style="margin-bottom: 0;">
                     <div class="task-item">
                         <input type="checkbox" id="task-wakeup" onchange="saveData()">
-                        <label for="task-wakeup">🌅 晨間作息：05:00 準時起床打卡</label>
+                        <label for="task-wakeup">WAKEUP ROUTINE : 05:00 ON-TIME</label>
                     </div>
                 </div>
                 <div class="task-box" style="margin-bottom: 0;">
                     <div class="task-item">
                         <input type="checkbox" id="task-sleep" onchange="saveData()">
-                        <label for="task-sleep">🌙 夜間作息：22:30 前就寢打卡</label>
+                        <label for="task-sleep">SLEEP ROUTINE : BEFORE 22:30</label>
                     </div>
                 </div>
             </div>
@@ -418,22 +425,22 @@
             <div class="task-box">
                 <div class="task-item">
                     <input type="checkbox" id="task-meditation" onchange="saveData()">
-                    <label for="task-meditation">🧘‍♂️ 冥想訓練 (10 MIN)</label>
+                    <label for="task-meditation">MEDITATION TRAINING (10 MIN)</label>
                 </div>
             </div>
 
             <div class="task-box">
                 <div class="task-item">
                     <input type="checkbox" id="task-bjj" onchange="saveData()">
-                    <label for="task-bjj">🥋 柔術影片學習 (30 MIN)</label>
+                    <label for="task-bjj">BJJ TECHNIQUE STUDY (30 MIN)</label>
                 </div>
                 <input type="text" id="bjj-note" placeholder="輸入今天學習心得或動作筆記..." oninput="saveData()">
             </div>
 
             <!-- 今日訓練按鈕區 -->
             <div style="margin-top: 10px; border-top: 1px solid rgba(0,240,255,0.2); padding-top: 10px;">
-                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; text-align: center;" id="today-status-desc">
-                    今日訓練狀態：<span id="daily-completion-status" style="color: var(--accent-cyan); font-weight: bold;">未完成</span>
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; text-align: center; letter-spacing: 1px;" id="today-status-desc">
+                    TODAY STATUS : <span id="daily-completion-status" style="color: var(--accent-cyan); font-weight: bold;">PENDING</span>
                 </div>
 
                 <button class="btn" id="btn-complete-day" onclick="completeDailyTraining()">COMPLETE TODAY'S TRAINING (完成今日訓練)</button>
@@ -443,7 +450,7 @@
 
             <!-- 每週每日任務狀態總覽 (Mon ~ Sun) -->
             <div style="margin-top: 14px; border-top: 1px solid rgba(0,240,255,0.2); padding-top: 10px;">
-                <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; display: flex; justify-content: space-between;">
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; display: flex; justify-content: space-between; letter-spacing: 0.5px;">
                     <span>WEEKLY STATUS LOG (05:00 UP / 22:30 SLEEP)</span>
                     <span id="current-day-indicator">TODAY: SAT</span>
                 </div>
@@ -466,11 +473,11 @@
         document.getElementById('date-label').innerText = now.toLocaleDateString('en-US', options).toUpperCase();
 
         const focusMap = {
-            1: "💪 HAND (手部訓練)",
-            2: "🦵 LEG (腿部訓練)",
+            1: "💪 HAND TRAINING (手部訓練)",
+            2: "🦵 LEG TRAINING (腿部訓練)",
             3: "⚡ CORE + CARDIO (核心與有氧)",
-            4: "💪 HAND (手部訓練)",
-            5: "🦵 LEG (腿部訓練)",
+            4: "💪 HAND TRAINING (手部訓練)",
+            5: "🦵 LEG TRAINING (腿部訓練)",
             6: "⚡ CORE + CARDIO (核心與有氧)",
             0: "🛡️ REST DAY (彈性休息日)"
         };
@@ -485,7 +492,7 @@
         }
         const currentWeekNumber = getWeekNumber(now);
 
-        let data = JSON.parse(localStorage.getItem('solo_system_data_v4')) || {
+        let data = JSON.parse(localStorage.getItem('solo_system_data_v5')) || {
             level: 7,
             exp: 72,
             str: 12.4,
@@ -510,7 +517,7 @@
             data.lastWeek = currentWeekNumber;
             data.weeklyStatus = ['pending', 'pending', 'pending', 'pending', 'pending', 'pending', 'pending'];
             data.secretClaimed = false;
-            localStorage.setItem('solo_system_data_v4', JSON.stringify(data));
+            localStorage.setItem('solo_system_data_v5', JSON.stringify(data));
         }
 
         for (let i = 0; i < currentDayIndex; i++) {
@@ -552,7 +559,7 @@
                 mainTitle.innerText = "WARNING: PENALTY ZONE";
                 iconSymbol.innerText = "⚠";
                 data.weeklyStatus[currentDayIndex] = 'failed';
-                statusDesc.innerText = "已逾時未完成 (FAILED)";
+                statusDesc.innerText = "FAILED (已逾時)";
                 statusDesc.style.color = "#f87171";
             } else {
                 qPanel.classList.remove('penalty-mode');
@@ -561,16 +568,16 @@
                 iconSymbol.innerText = "!";
 
                 if (currentStatus === 'success') {
-                    statusDesc.innerText = "已完成今日訓練 (SUCCESS)";
+                    statusDesc.innerText = "SUCCESS (已完成)";
                     statusDesc.style.color = "#4ade80";
                     btnComplete.disabled = true;
                     btnComplete.innerText = "TRAINING COMPLETED TODAY";
                 } else if (currentStatus === 'rest') {
-                    statusDesc.innerText = "今日休息中 (REST MODE)";
+                    statusDesc.innerText = "REST MODE (休息中)";
                     statusDesc.style.color = "#38bdf8";
                     btnComplete.disabled = true;
                 } else {
-                    statusDesc.innerText = "尚未完成訓練";
+                    statusDesc.innerText = "PENDING (尚未完成)";
                     statusDesc.style.color = "var(--accent-cyan)";
                     btnComplete.disabled = false;
                     btnComplete.innerText = "COMPLETE TODAY'S TRAINING (完成今日訓練)";
@@ -611,12 +618,12 @@
             document.getElementById('weekly-grid').innerHTML = gridHTML;
             document.getElementById('current-day-indicator').innerText = `TODAY: ${daysNames[currentDayIndex]}`;
 
-            let title = "覺醒者";
-            if (data.level >= 10) title = "二階獵人";
-            if (currentStatus === 'success') title = "超越極限者";
-            if (currentStatus === 'rest') title = "暫避鋒芒者";
-            if (isPenalty) title = "遭懲罰的囚徒";
-            document.getElementById('player-title').innerText = `頭銜：${title}`;
+            let title = "AWAKENED";
+            if (data.level >= 10) title = "SECOND-STEP HUNTER";
+            if (currentStatus === 'success') title = "LIMIT BREAKER";
+            if (currentStatus === 'rest') title = "RESTING WARRIOR";
+            if (isPenalty) title = "PENALIZED PRISONER";
+            document.getElementById('player-title').innerText = `TITLE: ${title}`;
         }
 
         function saveData() {
@@ -625,7 +632,7 @@
             data.meditation = document.getElementById('task-meditation').checked;
             data.bjj = document.getElementById('task-bjj').checked;
             data.bjjNote = document.getElementById('bjj-note').value;
-            localStorage.setItem('solo_system_data_v4', JSON.stringify(data));
+            localStorage.setItem('solo_system_data_v5', JSON.stringify(data));
         }
 
         function triggerFlash() {
