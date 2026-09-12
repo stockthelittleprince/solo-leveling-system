@@ -409,13 +409,13 @@
             <div style="margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px;">
                 <div class="task-box" style="margin-bottom: 0;">
                     <div class="task-item">
-                        <input type="checkbox" id="task-wakeup" onchange="saveData()">
+                        <input type="checkbox" id="task-wakeup" onchange="handleCheckboxChange('wakeup')">
                         <label for="task-wakeup">WAKEUP ROUTINE : 05:00 ON-TIME</label>
                     </div>
                 </div>
                 <div class="task-box" style="margin-bottom: 0;">
                     <div class="task-item">
-                        <input type="checkbox" id="task-sleep" onchange="saveData()">
+                        <input type="checkbox" id="task-sleep" onchange="handleCheckboxChange('sleep')">
                         <label for="task-sleep">SLEEP ROUTINE : BEFORE 22:30</label>
                     </div>
                 </div>
@@ -424,14 +424,14 @@
             <!-- 冥想與柔術學習 -->
             <div class="task-box">
                 <div class="task-item">
-                    <input type="checkbox" id="task-meditation" onchange="saveData()">
+                    <input type="checkbox" id="task-meditation" onchange="handleCheckboxChange('meditation')">
                     <label for="task-meditation">MEDITATION TRAINING (10 MIN)</label>
                 </div>
             </div>
 
             <div class="task-box">
                 <div class="task-item">
-                    <input type="checkbox" id="task-bjj" onchange="saveData()">
+                    <input type="checkbox" id="task-bjj" onchange="handleCheckboxChange('bjj')">
                     <label for="task-bjj">BJJ TECHNIQUE STUDY (30 MIN)</label>
                 </div>
                 <input type="text" id="bjj-note" placeholder="輸入今天學習心得或動作筆記..." oninput="saveData()">
@@ -462,6 +462,52 @@
     </div>
 
     <script>
+        // Web Audio API 模擬《我獨自升級》任務完成音效
+        let audioCtx = null;
+
+        function playSoloLevelingSound() {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const nowTime = audioCtx.currentTime;
+
+                // 模擬雙音頻金屬結算聲 (類似系統任務完成的 "噔-咚！" 頻率)
+                const osc1 = audioCtx.createOscillator();
+                const osc2 = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+
+                osc1.type = 'triangle';
+                osc2.type = 'square';
+
+                // 第一段高頻響起
+                osc1.frequency.setValueAtTime(587.33, nowTime); // D5
+                osc1.frequency.setValueAtTime(880.00, nowTime + 0.08); // A5
+                osc1.frequency.setValueAtTime(1174.66, nowTime + 0.18); // D6
+
+                osc2.frequency.setValueAtTime(293.66, nowTime); // D4
+                osc2.frequency.setValueAtTime(440.00, nowTime + 0.08); // A4
+
+                gainNode.gain.setValueAtTime(0.3, nowTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, nowTime + 0.45);
+
+                osc1.connect(gainNode);
+                osc2.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                osc1.start(nowTime);
+                osc2.start(nowTime);
+                osc1.stop(nowTime + 0.45);
+                osc2.stop(nowTime + 0.45);
+            } catch (e) {
+                console.log("Audio play blocked or not supported", e);
+            }
+        }
+
         const now = new Date();
         const jsDay = now.getDay(); // 0(日), 1(一)...6(六)
         const currentDayIndex = jsDay === 0 ? 6 : jsDay - 1;
@@ -635,6 +681,16 @@
             localStorage.setItem('solo_system_data_v5', JSON.stringify(data));
         }
 
+        function handleCheckboxChange(taskName) {
+            saveData();
+            // 當勾選任一項目（包含冥想打卡）時，播放獨自升級任務音效
+            const isChecked = document.getElementById('task-' + taskName).checked;
+            if (isChecked) {
+                playSoloLevelingSound();
+                triggerFlash();
+            }
+        }
+
         function triggerFlash() {
             const panel = document.getElementById('quest-panel');
             panel.classList.add('flashing');
@@ -647,6 +703,7 @@
                 return;
             }
 
+            playSoloLevelingSound();
             triggerFlash();
             data.weeklyStatus[currentDayIndex] = 'success';
 
@@ -700,6 +757,7 @@
         function claimSecretQuest() {
             data.secretClaimed = true;
             data.exp += 20;
+            playSoloLevelingSound();
             if (data.exp >= 100) {
                 data.level++;
                 data.exp = 0;
