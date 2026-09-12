@@ -49,7 +49,6 @@
             gap: 20px;
         }
 
-        /* 模仿我獨自升級彈窗 Notification 風格 */
         .system-notification {
             background: var(--panel-bg);
             border: 2px solid var(--accent-cyan);
@@ -59,7 +58,6 @@
             position: relative;
         }
 
-        /* 模仿截圖中的雙層框線與角落裝飾 */
         .system-notification::before {
             content: "";
             position: absolute;
@@ -140,7 +138,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 0.95krem;
+            font-size: 0.95rem;
         }
 
         .task-item input[type="checkbox"] {
@@ -218,14 +216,20 @@
             </div>
         </div>
 
-        <!-- 每日任務與習慣視窗 -->
+        <!-- 每日任務與系統面板 -->
         <div class="system-notification">
             <div class="notif-header">
                 <div class="notif-icon">!</div>
                 <div class="notif-title">NOTIFICATION</div>
             </div>
             
-            <div class="quest-title">[ Daily Quests & Habits ]</div>
+            <div class="quest-title" id="date-label">[ TODAY'S QUEST ]</div>
+
+            <!-- 今日建議訓練項目 -->
+            <div style="background: rgba(0, 240, 255, 0.08); border: 1px solid var(--accent-cyan); padding: 12px; border-radius: 4px; margin-bottom: 12px; text-align: center;">
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">RECOMMENDED FOCUS</div>
+                <div id="today-workout-target" style="font-size: 1.1rem; font-weight: bold; color: var(--accent-cyan); text-shadow: 0 0 8px rgba(0,240,255,0.5);">💪 載入中...</div>
+            </div>
 
             <!-- 冥想 -->
             <div class="task-box">
@@ -267,6 +271,25 @@
     </div>
 
     <script>
+        // 自動判斷今天是星期幾來給定訓練項目 (週一~週日對應)
+        // 你的每週配額：2x Hand, 2x Leg, 2x Core/Cardio, 1x Rest
+        const workouts = {
+            1: "💪 HAND TRAINING (手部訓練)",
+            2: "🦵 LEG TRAINING (腿部訓練)",
+            3: "⚡ CORE + CARDIO (核心與有氧)",
+            4: "💪 HAND TRAINING (手部訓練)",
+            5: "🦵 LEG TRAINING (腿部訓練)",
+            6: "⚡ CORE + CARDIO (核心與有氧)",
+            0: "🛡️ REST DAY (彈性休息日)"
+        };
+
+        const now = new Date();
+        const dayOfWeek = now.getDay(); // 0是週日, 1是週一...6是週六
+        const options = { weekday: 'short', month: 'short', day: 'numeric' };
+        
+        document.getElementById('date-label').innerText = `[ TODAY · ${now.toLocaleDateString('en-US', options).toUpperCase()} ]`;
+        document.getElementById('today-workout-target').innerText = workouts[dayOfWeek];
+
         let stats = { hand: 0, leg: 0, core: 0, rest: 0 };
         function completeTraining() {
             if (stats.hand < 2) {
