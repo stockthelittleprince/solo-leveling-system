@@ -6,15 +6,13 @@
     <title>Solo Leveling System</title>
     <style>
         :root {
-            --bg-color: #0d1117;
-            --panel-bg: #161b22;
-            --border-color: #30363d;
-            --text-main: #c9d1d9;
-            --text-muted: #8b949e;
-            --accent-green: #238636;
-            --accent-green-hover: #2ea043;
-            --accent-glow: rgba(35, 134, 54, 0.4);
-            --danger-color: #da3633;
+            --system-bg: rgba(8, 15, 30, 0.9);
+            --panel-border: #00f0ff;
+            --panel-glow: rgba(0, 240, 255, 0.3);
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent-cyan: #00f0ff;
+            --accent-glow-green: #10b981;
         }
 
         * {
@@ -25,11 +23,24 @@
         }
 
         body {
-            background-color: var(--bg-color);
+            /* 讀取你上傳的 bg.jpg 背景圖 */
+            background: url('bg.jpg') no-repeat center center fixed;
+            background-size: cover;
+            background-color: #030712;
             color: var(--text-main);
             padding: 20px;
             display: flex;
             justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* 增加一層半透明遮罩，讓面板和字體更清晰突顯 */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(3, 7, 18, 0.85);
+            z-index: -1;
         }
 
         .container {
@@ -40,23 +51,35 @@
             gap: 20px;
         }
 
+        /* 系統面板風格：類似我獨自升級的藍光邊框視窗 */
         .panel {
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
+            background-color: var(--system-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 4px;
             padding: 20px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            box-shadow: 0 0 20px var(--panel-glow), inset 0 0 15px rgba(0, 240, 255, 0.05);
+            position: relative;
+        }
+
+        .panel::after {
+            content: "";
+            position: absolute;
+            bottom: 0; right: 0;
+            width: 10px; height: 10px;
+            border-right: 2px solid var(--accent-cyan);
+            border-bottom: 2px solid var(--accent-cyan);
         }
 
         .header-panel {
-            border-left: 4px solid var(--accent-green);
+            border-left: 5px solid var(--accent-cyan);
         }
 
         h1, h2, h3 {
-            color: #ffffff;
+            color: var(--accent-cyan);
             font-size: 1.1rem;
             margin-bottom: 12px;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
+            text-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
         }
 
         .status-row {
@@ -67,8 +90,8 @@
         }
 
         .progress-bar-bg {
-            background-color: #21262d;
-            border: 1px solid var(--border-color);
+            background-color: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(0, 240, 255, 0.4);
             height: 12px;
             border-radius: 2px;
             overflow: hidden;
@@ -76,10 +99,11 @@
         }
 
         .progress-bar-fill {
-            background-color: var(--accent-green);
+            background: linear-gradient(90deg, #0284c7, var(--accent-cyan));
             height: 100%;
             width: 0%;
             transition: width 0.3s ease;
+            box-shadow: 0 0 10px var(--accent-cyan);
         }
 
         .task-item {
@@ -91,38 +115,45 @@
         }
 
         .task-item input[type="checkbox"] {
-            accent-color: var(--accent-green);
+            accent-color: var(--accent-cyan);
             width: 18px;
             height: 18px;
+            cursor: pointer;
         }
 
         .btn {
-            background-color: var(--accent-green);
+            background: linear-gradient(135deg, #0284c7, #0369a1);
             color: white;
-            border: none;
-            padding: 10px 16px;
+            border: 1px solid var(--accent-cyan);
+            padding: 12px 16px;
             font-weight: bold;
-            border-radius: 6px;
+            border-radius: 4px;
             cursor: pointer;
             width: 100%;
             margin-top: 10px;
             text-align: center;
+            letter-spacing: 1px;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+            transition: all 0.2s;
         }
 
         .btn:hover {
-            background-color: var(--accent-green-hover);
+            background: linear-gradient(135deg, #0369a1, #0284c7);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
         }
 
         .btn-rest {
-            background-color: transparent;
-            border: 1px solid var(--border-color);
+            background: transparent;
+            border: 1px solid var(--text-muted);
             color: var(--text-muted);
+            box-shadow: none;
         }
 
         .btn-rest:hover {
             border-color: var(--text-main);
             color: var(--text-main);
-            background-color: #21262d;
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: none;
         }
 
         .activity-grid {
@@ -133,15 +164,16 @@
         }
 
         .activity-cell {
-            background-color: #21262d;
+            background-color: rgba(15, 23, 42, 0.8);
             aspect-ratio: 1;
             border-radius: 2px;
-            border: 1px solid var(--border-color);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .activity-cell.active {
-            background-color: var(--accent-green);
-            border-color: #2ea043;
+            background-color: #10b981;
+            border-color: #34d399;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
         }
 
         .day-label {
@@ -167,48 +199,8 @@
             </div>
         </div>
 
-        <!-- WEEKLY QUEST -->
-        <div class="panel">
-            <h3>WEEKLY QUEST (SEP 14 — SEP 20)</h3>
-            
-            <div class="status-row"><span>HAND (手)</span><span id="hand-count">0 / 2</span></div>
-            <div class="progress-bar-bg"><div class="progress-bar-fill" id="hand-bar" style="width: 0%;"></div></div>
-
-            <div class="status-row"><span>LEG (腿)</span><span id="leg-count">0 / 2</span></div>
-            <div class="progress-bar-bg"><div class="progress-bar-fill" id="leg-bar" style="width: 0%;"></div></div>
-
-            <div class="status-row"><span>CORE + CARDIO (肚子+有氧)</span><span id="core-count">0 / 2</span></div>
-            <div class="progress-bar-bg"><div class="progress-bar-fill" id="core-bar" style="width: 0%;"></div></div>
-
-            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 15px 0;">
-
-            <div class="status-row"><span>TOTAL TRAINING: <strong id="total-training">0</strong> / 6</span><span>REST DAY: <strong id="rest-count">0</strong> / 1</span></div>
-        </div>
-
-        <!-- TODAY QUEST -->
-        <div class="panel">
-            <h3>TODAY · MON SEP 14</h3>
-            
-            <div class="task-item">
-                <input type="checkbox" id="task-meditation">
-                <label for="task-meditation">MEDITATION (冥想 10分)</label>
-            </div>
-
-            <div class="task-item" style="flex-direction: column; align-items: flex-start; background: #21262d; padding: 10px; border-radius: 4px; margin: 10px 0;">
-                <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
-                    <input type="checkbox" id="task-bjj">
-                    <label for="task-bjj">BJJ / 柔術影片 (30 MIN)</label>
-                </div>
-                <input type="text" placeholder="今天看了什麼？" style="width: 100%; margin-top: 8px; background: var(--bg-color); border: 1px solid var(--border-color); color: white; padding: 6px; border-radius: 4px;">
-            </div>
-
-            <div style="margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px;">
-                <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 5px;">TODAY'S SCHEDULED TRAINING</div>
-                <div id="today-target" style="font-size: 1.2rem; font-weight: bold; color: #fff; margin-bottom: 10px;">💪 HAND TRAINING (手)</div>
-                <button class="btn" onclick="completeTraining()">COMPLETE TRAINING</button>
-                <button class="btn btn-rest" onclick="enterRestMode()">ENTER REST MODE (休息)</button>
-            </div>
-        </div>
+        <!-- DYNAMIC WEEKLY & TODAY PANEL -->
+        <div id="app-content"></div>
 
         <!-- ACTIVITY CONTRIBUTION -->
         <div class="panel">
@@ -223,21 +215,78 @@
                 <div class="day-label">SUN</div>
             </div>
             <div class="activity-grid" id="activity-grid">
-                <!-- 7 days demo cells -->
+                <div class="activity-cell"></div>
+                <div class="activity-cell"></div>
+                <div class="activity-cell"></div>
+                <div class="activity-cell"></div>
+                <div class="activity-cell"></div>
                 <div class="activity-cell active"></div>
-                <div class="activity-cell active"></div>
-                <div class="activity-cell"></div>
-                <div class="activity-cell"></div>
-                <div class="activity-cell"></div>
-                <div class="activity-cell"></div>
                 <div class="activity-cell"></div>
             </div>
         </div>
     </div>
 
     <script>
-        let stats = { hand: 0, leg: 0, core: 0, rest: 0 };
+        const now = new Date();
+        const dayOfWeek = now.getDay(); 
+        const options = { weekday: 'short', month: 'short', day: 'numeric' };
+        const dateString = now.toLocaleDateString('en-US', options).toUpperCase();
 
+        const contentDiv = document.getElementById('app-content');
+
+        if (dayOfWeek === 6 || dayOfWeek === 0) {
+            contentDiv.innerHTML = `
+                <div class="panel">
+                    <h3>SYSTEM STATUS</h3>
+                    <div style="font-size: 1.1rem; color: #fff; margin: 15px 0; text-align: center;">
+                        NEXT WEEK QUEST<br><br>
+                        <strong style="color: var(--accent-cyan); font-size: 1.3rem; text-shadow: 0 0 10px var(--accent-cyan);">MON 09.14 INITIALIZING...</strong>
+                    </div>
+                    <div class="status-row"><span>HAND (手)</span><span>0 / 2</span></div>
+                    <div class="status-row"><span>LEG (腿)</span><span>0 / 2</span></div>
+                    <div class="status-row"><span>CORE + CARDIO (肚子+有氧)</span><span>0 / 2</span></div>
+                    <hr style="border: 0; border-top: 1px solid rgba(0, 240, 255, 0.2); margin: 15px 0;">
+                    <div class="status-row"><span>TOTAL: 0 / 6</span><span>REST DAY: 0 / 1</span></div>
+                </div>
+            `;
+        } else {
+            contentDiv.innerHTML = `
+                <div class="panel">
+                    <h3>WEEKLY QUEST (SEP 14 — SEP 20)</h3>
+                    <div class="status-row"><span>HAND (手)</span><span id="hand-count">0 / 2</span></div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" id="hand-bar" style="width: 0%;"></div></div>
+                    <div class="status-row"><span>LEG (腿)</span><span id="leg-count">0 / 2</span></div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" id="leg-bar" style="width: 0%;"></div></div>
+                    <div class="status-row"><span>CORE + CARDIO (肚子+有氧)</span><span id="core-count">0 / 2</span></div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" id="core-bar" style="width: 0%;"></div></div>
+                    <hr style="border: 0; border-top: 1px solid rgba(0, 240, 255, 0.2); margin: 15px 0;">
+                    <div class="status-row"><span>TOTAL TRAINING: <strong id="total-training">0</strong> / 6</span><span>REST DAY: <strong id="rest-count">0</strong> / 1</span></div>
+                </div>
+
+                <div class="panel">
+                    <h3>TODAY · ${dateString}</h3>
+                    <div class="task-item">
+                        <input type="checkbox" id="task-meditation">
+                        <label for="task-meditation">MEDITATION (冥想 10分)</label>
+                    </div>
+                    <div class="task-item" style="flex-direction: column; align-items: flex-start; background: rgba(15, 23, 42, 0.8); padding: 10px; border-radius: 4px; margin: 10px 0; border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                            <input type="checkbox" id="task-bjj">
+                            <label for="task-bjj">BJJ / 柔術影片 (30 MIN)</label>
+                        </div>
+                        <input type="text" placeholder="今天看了什麼？" style="width: 100%; margin-top: 8px; background: #030712; border: 1px solid rgba(0, 240, 255, 0.3); color: white; padding: 6px; border-radius: 4px;">
+                    </div>
+                    <div style="margin-top: 15px; border-top: 1px solid rgba(0, 240, 255, 0.2); padding-top: 15px;">
+                        <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 5px;">TODAY'S SCHEDULED TRAINING</div>
+                        <div id="today-target" style="font-size: 1.2rem; font-weight: bold; color: var(--accent-cyan); margin-bottom: 10px; text-shadow: 0 0 8px rgba(0,240,255,0.4);">💪 HAND TRAINING (手)</div>
+                        <button class="btn" onclick="completeTraining()">COMPLETE TRAINING</button>
+                        <button class="btn btn-rest" onclick="enterRestMode()">ENTER REST MODE (休息)</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        let stats = { hand: 0, leg: 0, core: 0, rest: 0 };
         function completeTraining() {
             if (stats.hand < 2) {
                 stats.hand++;
@@ -252,8 +301,7 @@
                 document.getElementById('core-count').innerText = stats.core + " / 2";
                 document.getElementById('core-bar').style.width = (stats.core / 2 * 100) + "%";
             }
-            let total = stats.hand + stats.leg + stats.core;
-            document.getElementById('total-training').innerText = total;
+            document.getElementById('total-training').innerText = (stats.hand + stats.leg + stats.core);
             alert("SYSTEM: 訓練已完成，EXP +100");
         }
 
@@ -261,7 +309,7 @@
             if (stats.rest < 1) {
                 stats.rest++;
                 document.getElementById('rest-count').innerText = stats.rest;
-                alert("⚠ REST MODE ACTIVATED: 今日訓練已順延，休息額度已紀錄。");
+                alert("⚠ REST MODE ACTIVATED: 今日訓練已順延。");
             } else {
                 alert("本週休息額度已用完！");
             }
