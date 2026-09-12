@@ -59,7 +59,6 @@
             transition: all 0.3s;
         }
 
-        /* 懲罰模式下的紅色警告風格 */
         .system-notification.penalty-mode {
             border-color: #ef4444;
             background: rgba(20, 5, 5, 0.96);
@@ -151,21 +150,12 @@
             margin-bottom: 12px;
         }
 
-        .system-notification.penalty-mode .progress-bar-bg {
-            border-color: rgba(239, 68, 68, 0.4);
-        }
-
         .progress-bar-fill {
             background: linear-gradient(90deg, #0284c7, var(--accent-cyan));
             height: 100%;
             width: 0%;
             transition: width 0.3s ease;
             box-shadow: 0 0 10px var(--accent-cyan);
-        }
-
-        .system-notification.penalty-mode .progress-bar-fill {
-            background: linear-gradient(90deg, #991b1b, #ef4444);
-            box-shadow: 0 0 10px #ef4444;
         }
 
         .stats-grid {
@@ -181,11 +171,6 @@
             padding: 6px;
             text-align: center;
             border-radius: 4px;
-        }
-
-        .system-notification.penalty-mode .stat-box {
-            background: rgba(239, 68, 68, 0.03);
-            border-color: rgba(239, 68, 68, 0.2);
         }
 
         .stat-label {
@@ -207,11 +192,6 @@
             margin-bottom: 8px;
         }
 
-        .system-notification.penalty-mode .task-box {
-            background: rgba(239, 68, 68, 0.03);
-            border-color: rgba(239, 68, 68, 0.2);
-        }
-
         .task-item {
             display: flex;
             align-items: center;
@@ -224,10 +204,6 @@
             width: 18px;
             height: 18px;
             cursor: pointer;
-        }
-
-        .system-notification.penalty-mode .task-item input[type="checkbox"] {
-            accent-color: #ef4444;
         }
 
         input[type="text"] {
@@ -263,15 +239,17 @@
             transition: all 0.2s;
         }
 
-        .system-notification.penalty-mode .btn {
-            background: linear-gradient(135deg, #991b1b, #7f1d1d);
-            border-color: #ef4444;
-            box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
-        }
-
         .btn:hover {
             background: linear-gradient(135deg, #0369a1, #0284c7);
             box-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
+        }
+
+        .btn:disabled {
+            background: #1e293b;
+            border-color: #475569;
+            color: #64748b;
+            cursor: not-allowed;
+            box-shadow: none;
         }
 
         .btn-rest {
@@ -289,7 +267,6 @@
             box-shadow: none;
         }
 
-        /* 隱藏任務彈窗提示區 */
         .secret-quest-banner {
             background: rgba(147, 51, 234, 0.1);
             border: 1px dashed #c084fc;
@@ -304,7 +281,6 @@
             display: flex;
         }
 
-        /* 每週日曆歷史紀錄樣式 */
         .weekly-history-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -327,12 +303,6 @@
             box-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
         }
 
-        .system-notification.penalty-mode .day-card.today {
-            border-color: #ef4444;
-            background: rgba(239, 68, 68, 0.15);
-            box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
-        }
-
         .day-name {
             color: var(--text-muted);
             margin-bottom: 4px;
@@ -341,9 +311,6 @@
 
         .day-card.today .day-name {
             color: var(--accent-cyan);
-        }
-        .system-notification.penalty-mode .day-card.today .day-name {
-            color: #f87171;
         }
 
         .day-status {
@@ -384,7 +351,7 @@
                 <div class="progress-bar-fill" id="exp-bar" style="width: 72%;"></div>
             </div>
 
-            <!-- 微幅成長屬性表 -->
+            <!-- 屬性表 -->
             <div class="stats-grid">
                 <div class="stat-box">
                     <div class="stat-label">STR 力量</div>
@@ -415,14 +382,14 @@
                 <div style="font-size: 0.8rem; color: var(--text-muted);" id="date-label">SAT, SEP 12</div>
             </div>
             
-            <!-- 隱藏任務提示器 (隨機觸發) -->
+            <!-- 隱藏任務提示器 -->
             <div class="secret-quest-banner" id="secret-quest-banner">
                 <span style="font-size: 0.8rem; color: #c084fc;">🔮 SECRET QUEST AVAILABLE</span>
                 <button onclick="claimSecretQuest()" style="background: #9333ea; color: white; border: none; padding: 2px 8px; border-radius: 3px; font-size: 0.75rem; cursor: pointer; font-weight: bold;">領取 (+20 EXP)</button>
             </div>
 
             <!-- 今日建議訓練項目指示器 -->
-            <div style="background: rgba(0, 240, 255, 0.08); border: 1px solid var(--accent-cyan); padding: 8px 12px; border-radius: 4px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;" id="focus-box">
+            <div style="background: rgba(0, 240, 255, 0.08); border: 1px solid var(--accent-cyan); padding: 8px 12px; border-radius: 4px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-size: 0.8rem; color: var(--text-muted);">TODAY'S FOCUS:</span>
                 <span id="today-focus-text" style="font-size: 0.9rem; font-weight: bold; color: var(--accent-cyan);">⚡ CORE + CARDIO (核心與有氧)</span>
             </div>
@@ -444,29 +411,20 @@
                 <input type="text" id="bjj-note" placeholder="輸入今天學習心得或動作筆記..." oninput="saveData()">
             </div>
 
-            <!-- 體能訓練進度 -->
-            <div style="margin-top: 10px; border-top: 1px solid rgba(0,240,255,0.2); padding-top: 10px;" id="training-section-border">
-                <div class="status-row"><span>HAND (手)</span><span id="hand-count">0 / 2</span></div>
-                <div class="progress-bar-bg"><div class="progress-bar-fill" id="hand-bar" style="width: 0%;"></div></div>
-                
-                <div class="status-row"><span>LEG (腿)</span><span id="leg-count">0 / 2</span></div>
-                <div class="progress-bar-bg"><div class="progress-bar-fill" id="leg-bar" style="width: 0%;"></div></div>
-                
-                <div class="status-row"><span>CORE + CARDIO (核心+有氧)</span><span id="core-count">0 / 2</span></div>
-                <div class="progress-bar-bg"><div class="progress-bar-fill" id="core-bar" style="width: 0%;"></div></div>
-                
-                <div class="status-row" style="margin-top: 8px; font-weight: bold; color: var(--accent-cyan); font-size: 0.85rem;" id="total-row-text">
-                    <span>TOTAL: <span id="total-training">0</span> / 6</span>
-                    <span>REST: <span id="rest-count">0</span> / 1</span>
+            <!-- 今日訓練按鈕區 (一天一按，依據當日菜單完成) -->
+            <div style="margin-top: 10px; border-top: 1px solid rgba(0,240,255,0.2); padding-top: 10px;">
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; text-align: center;" id="today-status-desc">
+                    今日訓練狀態：<span id="daily-completion-status" style="color: var(--accent-cyan); font-weight: bold;">未完成</span>
                 </div>
 
-                <button class="btn" onclick="completeTraining()">COMPLETE TRAINING (+1 PROGRESS)</button>
-                <button class="btn btn-rest" onclick="enterRestMode()">ENTER REST MODE (休息)</button>
+                <!-- 點擊後即代表完成今日專屬訓練 -->
+                <button class="btn" id="btn-complete-day" onclick="completeDailyTraining()">COMPLETE TODAY'S TRAINING (完成今日訓練)</button>
+                <button class="btn btn-rest" id="btn-rest-mode" onclick="enterRestMode()">ENTER REST MODE (今日休息)</button>
                 <button class="btn btn-rest" style="border-color: rgba(239, 68, 68, 0.4); color: #fca5a5; margin-top: 4px;" onclick="cancelRestMode()">CANCEL REST (取消休息)</button>
             </div>
 
             <!-- 每週每日任務狀態總覽 (Mon ~ Sun) -->
-            <div style="margin-top: 14px; border-top: 1px solid rgba(0,240,255,0.2); padding-top: 10px;" id="weekly-section-border">
+            <div style="margin-top: 14px; border-top: 1px solid rgba(0,240,255,0.2); padding-top: 10px;">
                 <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; display: flex; justify-content: space-between;">
                     <span>WEEKLY STATUS LOG (05:00 UP / 22:30 SLEEP)</span>
                     <span id="current-day-indicator">TODAY: SAT</span>
@@ -484,7 +442,7 @@
         const currentDayIndex = jsDay === 0 ? 6 : jsDay - 1;
         const currentHour = now.getHours();
         const currentMinute = now.getMinutes();
-        const currentTimeVal = currentHour * 60 + currentMinute; // 換算成分鐘來比對 22:30 (1350分)
+        const currentTimeVal = currentHour * 60 + currentMinute;
 
         const options = { weekday: 'short', month: 'short', day: 'numeric' };
         document.getElementById('date-label').innerText = now.toLocaleDateString('en-US', options).toUpperCase();
@@ -509,39 +467,33 @@
         }
         const currentWeekNumber = getWeekNumber(now);
 
-        let data = JSON.parse(localStorage.getItem('solo_system_data_v2')) || {
+        // 儲存格式升級為記錄每一天是否完成（true/false/rest）
+        let data = JSON.parse(localStorage.getItem('solo_system_data_v3')) || {
             level: 7,
             exp: 72,
             str: 12.4,
             agi: 11.1,
             vit: 13.0,
             int: 10.5,
-            hand: 0,
-            leg: 0,
-            core: 0,
-            rest: 0,
             meditation: false,
             bjj: false,
             bjjNote: "",
             lastWeek: currentWeekNumber,
+            // 記錄每週 7 天的狀態: 'pending', 'success', 'rest', 'failed'
             weeklyStatus: ['pending', 'pending', 'pending', 'pending', 'pending', 'pending', 'pending'],
             secretClaimed: false
         };
 
         if (data.lastWeek !== currentWeekNumber) {
-            data.hand = 0;
-            data.leg = 0;
-            data.core = 0;
-            data.rest = 0;
             data.meditation = false;
             data.bjj = false;
             data.lastWeek = currentWeekNumber;
             data.weeklyStatus = ['pending', 'pending', 'pending', 'pending', 'pending', 'pending', 'pending'];
             data.secretClaimed = false;
-            localStorage.setItem('solo_system_data_v2', JSON.stringify(data));
+            localStorage.setItem('solo_system_data_v3', JSON.stringify(data));
         }
 
-        // 自動結算過去未完成的天數為 FAILED
+        // 自動將過去未完成的天數結算為 FAILED
         for (let i = 0; i < currentDayIndex; i++) {
             if (data.weeklyStatus[i] === 'pending') {
                 data.weeklyStatus[i] = 'failed';
@@ -558,32 +510,21 @@
             document.getElementById('stat-vit').innerText = data.vit.toFixed(1);
             document.getElementById('stat-int').innerText = data.int.toFixed(1);
 
-            document.getElementById('hand-count').innerText = data.hand + " / 2";
-            document.getElementById('hand-bar').style.width = (data.hand / 2 * 100) + "%";
-
-            document.getElementById('leg-count').innerText = data.leg + " / 2";
-            document.getElementById('leg-bar').style.width = (data.leg / 2 * 100) + "%";
-
-            document.getElementById('core-count').innerText = data.core + " / 2";
-            document.getElementById('core-bar').style.width = (data.core / 2 * 100) + "%";
-
-            const total = data.hand + data.leg + data.core;
-            document.getElementById('total-training').innerText = total;
-            document.getElementById('rest-count').innerText = data.rest;
-
             document.getElementById('task-meditation').checked = data.meditation;
             document.getElementById('task-bjj').checked = data.bjj;
             document.getElementById('bjj-note').value = data.bjjNote;
 
-            // 狀態判定：過 22:30 (1350分) 且未達標又未休息 ➔ 進入 PENALTY 模式
+            const currentStatus = data.weeklyStatus[currentDayIndex];
             const isLateNight = currentTimeVal >= 1350; // 22:30 以後
-            const isCompletedToday = (total >= 4 || data.rest > 0);
-            const isPenalty = isLateNight && !isCompletedToday;
+            const isPenalty = isLateNight && (currentStatus === 'pending' || currentStatus === 'failed');
 
             const qPanel = document.getElementById('quest-panel');
             const sPanel = document.getElementById('status-panel');
             const mainTitle = document.getElementById('notif-main-title');
             const iconSymbol = document.getElementById('notif-icon-symbol');
+            const statusDesc = document.getElementById('daily-completion-status');
+            const btnComplete = document.getElementById('btn-complete-day');
+            const btnRest = document.getElementById('btn-rest-mode');
 
             if (isPenalty) {
                 qPanel.classList.add('penalty-mode');
@@ -591,23 +532,33 @@
                 mainTitle.innerText = "WARNING: PENALTY ZONE";
                 iconSymbol.innerText = "⚠";
                 data.weeklyStatus[currentDayIndex] = 'failed';
+                statusDesc.innerText = "已逾時未完成 (FAILED)";
+                statusDesc.style.color = "#f87171";
             } else {
                 qPanel.classList.remove('penalty-mode');
                 sPanel.classList.remove('penalty-mode');
                 mainTitle.innerText = "NOTIFICATION";
                 iconSymbol.innerText = "!";
 
-                if (data.rest > 0) {
-                    data.weeklyStatus[currentDayIndex] = 'rest';
-                } else if (total >= 4) {
-                    data.weeklyStatus[currentDayIndex] = 'success';
+                if (currentStatus === 'success') {
+                    statusDesc.innerText = "已完成今日訓練 (SUCCESS)";
+                    statusDesc.style.color = "#4ade80";
+                    btnComplete.disabled = true;
+                    btnComplete.innerText = "TRAINING COMPLETED TODAY";
+                } else if (currentStatus === 'rest') {
+                    statusDesc.innerText = "今日休息中 (REST MODE)";
+                    statusDesc.style.color = "#38bdf8";
+                    btnComplete.disabled = true;
                 } else {
-                    data.weeklyStatus[currentDayIndex] = 'pending';
+                    statusDesc.innerText = "尚未完成訓練";
+                    statusDesc.style.color = "var(--accent-cyan)";
+                    btnComplete.disabled = false;
+                    btnComplete.innerText = "COMPLETE TODAY'S TRAINING (完成今日訓練)";
                 }
             }
 
-            // 隨機隱藏任務顯示判定
-            if (!data.secretClaimed && (data.hand > 0 || data.core > 0)) {
+            // 隱藏任務顯示
+            if (!data.secretClaimed && data.meditation) {
                 document.getElementById('secret-quest-banner').classList.add('active');
             } else {
                 document.getElementById('secret-quest-banner').classList.remove('active');
@@ -644,8 +595,8 @@
 
             let title = "覺醒者";
             if (data.level >= 10) title = "二階獵人";
-            if (total >= 4) title = "超越極限者";
-            if (data.rest > 0) title = "暫避鋒芒者";
+            if (currentStatus === 'success') title = "超越極限者";
+            if (currentStatus === 'rest') title = "暫避鋒芒者";
             if (isPenalty) title = "遭懲罰的囚徒";
             document.getElementById('player-title').innerText = `頭銜：${title}`;
         }
@@ -654,7 +605,7 @@
             data.meditation = document.getElementById('task-meditation').checked;
             data.bjj = document.getElementById('task-bjj').checked;
             data.bjjNote = document.getElementById('bjj-note').value;
-            localStorage.setItem('solo_system_data_v2', JSON.stringify(data));
+            localStorage.setItem('solo_system_data_v3', JSON.stringify(data));
         }
 
         function triggerFlash() {
@@ -663,30 +614,32 @@
             setTimeout(() => panel.classList.remove('flashing'), 400);
         }
 
-        function completeTraining() {
-            triggerFlash();
-            
-            if (data.hand < 2) { 
-                data.hand++; 
-                data.str += 0.2; 
-            } else if (data.leg < 2) { 
-                data.leg++; 
-                data.vit += 0.2; 
-            } else if (data.core < 2) { 
-                data.core++; 
-                data.agi += 0.15; 
-            } else {
-                alert("本週訓練配額已全部完成！");
+        // 完成今日訓練（一天只能按一次，依當日項目增加對應屬性）
+        function completeDailyTraining() {
+            if (data.weeklyStatus[currentDayIndex] === 'success' || data.weeklyStatus[currentDayIndex] === 'rest') {
+                alert("今日已經完成或已進入休息，無法重複結算！");
                 return;
             }
 
-            data.exp += 15;
+            triggerFlash();
+            data.weeklyStatus[currentDayIndex] = 'success';
+
+            // 根據當日訓練項目提升對應屬性
+            if (jsDay === 1 || jsDay === 4) {
+                data.str += 0.4; // 手部訓練加力量
+            } else if (jsDay === 2 || jsDay === 5) {
+                data.vit += 0.4; // 腿部訓練加體力
+            } else {
+                data.agi += 0.3; // 核心有氧加敏捷
+            }
+
+            data.exp += 30; // 每日結算獲得 30 EXP
             if (data.exp >= 100) {
                 data.level++;
                 data.exp = 0;
                 alert(`🎉 恭喜！等級提升至 LV. ${data.level}！`);
             } else {
-                alert("SYSTEM: 訓練進度登錄成功，EXP +15。");
+                alert("SYSTEM: 今日訓練達成，EXP +30，屬性已提升！");
             }
 
             saveData();
@@ -694,24 +647,24 @@
         }
 
         function enterRestMode() {
-            if (data.rest < 1) {
-                data.rest++;
-                data.vit += 0.1;
-                triggerFlash();
-                alert("⚠ REST MODE ACTIVATED: 本週休息額度已使用。");
-                saveData();
-                updateUI();
-            } else {
-                alert("本週休息額度已用完！");
+            if (data.weeklyStatus[currentDayIndex] === 'success') {
+                alert("今日已完成訓練，無需進入休息模式！");
+                return;
             }
+            data.weeklyStatus[currentDayIndex] = 'rest';
+            data.vit += 0.1;
+            triggerFlash();
+            alert("⚠ REST MODE ACTIVATED: 今日已切換為休息模式。");
+            saveData();
+            updateUI();
         }
 
         function cancelRestMode() {
-            if (data.rest > 0) {
-                data.rest = 0;
+            if (data.weeklyStatus[currentDayIndex] === 'rest') {
+                data.weeklyStatus[currentDayIndex] = 'pending';
                 data.vit = Math.max(10, data.vit - 0.1);
                 triggerFlash();
-                alert("SYSTEM: 已取消休息模式，恢復訓練狀態。");
+                alert("SYSTEM: 已取消休息模式，恢復今日訓練待命狀態。");
                 saveData();
                 updateUI();
             } else {
