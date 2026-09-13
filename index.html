@@ -347,7 +347,7 @@
 </head>
 <body>
 
-    <!-- 背景音樂 Audio 元素 (請準備 bgm.mp3 與 index.html 放同資料夾) -->
+    <!-- 背景音樂 Audio 元素 -->
     <audio id="bgmAudio" src="bgm.mp3" loop preload="auto"></audio>
 
     <div class="container" id="main-container">
@@ -404,7 +404,7 @@
 
             <!-- 隱藏任務提示器 -->
             <div class="secret-quest-banner" id="secret-quest-banner">
-                <span style="font-size: 0.8rem; color: #c084fc;">🔮 觸發隱藏任務</span>
+                <span style="font-size: 0.8rem; color: #c084fc;">🔮 觸發隱藏任務：冥想覺醒</span>
                 <button onclick="claimSecretQuest()" style="background: #9333ea; color: white; border: none; padding: 2px 8px; border-radius: 3px; font-size: 0.75rem; cursor: pointer; font-weight: bold; letter-spacing: 1px;">領取 (+20 EXP)</button>
             </div>
 
@@ -471,7 +471,7 @@
     </div>
 
     <script>
-        // 任務完成真實音效
+        // 任務完成音效
         function playSoloLevelingSound() {
             try {
                 const audio = new Audio('sound.mp3');
@@ -495,7 +495,7 @@
                     btn.style.borderColor = "#4ade80";
                     btn.style.color = "#4ade80";
                 }).catch(e => {
-                    alert("無法自動播放背景音樂，請檢查 bgm.mp3 檔案是否存在。");
+                    alert("無法自動播放背景音樂，請確認是否已放置 bgm.mp3 檔案。");
                 });
             } else {
                 bgm.pause();
@@ -520,10 +520,10 @@
         const focusMap = {
             1: "💪 手部訓練",
             2: "🦵 腿部訓練",
-            3: "⚡ 核心與有氧",
+            3: "⚡ 核心與冥想",
             4: "💪 手部訓練",
             5: "🦵 腿部訓練",
-            6: "⚡ 核心與有氧",
+            6: "⚡ 核心與柔術",
             0: "🛡️ 彈性休息日"
         };
         document.getElementById('today-focus-text').innerText = focusMap[jsDay];
@@ -537,7 +537,7 @@
         }
         const currentWeekNumber = getWeekNumber(now);
 
-        let data = JSON.parse(localStorage.getItem('solo_system_data_v9')) || {
+        let data = JSON.parse(localStorage.getItem('solo_system_data_v10')) || {
             level: 7,
             exp: 72,
             str: 12.4,
@@ -685,7 +685,7 @@
             data.meditation = document.getElementById('task-meditation').checked;
             data.bjj = document.getElementById('task-bjj').checked;
             data.bjjNote = document.getElementById('bjj-note').value;
-            localStorage.setItem('solo_system_data_v9', JSON.stringify(data));
+            localStorage.setItem('solo_system_data_v10', JSON.stringify(data));
         }
 
         function handleCheckboxChange(taskName) {
@@ -713,12 +713,14 @@
             triggerFlash();
             data.weeklyStatus[currentDayIndex] = 'success';
 
+            // 根據不同天數給予對應屬性成長
             if (jsDay === 1 || jsDay === 4) {
                 data.str += 0.4;
             } else if (jsDay === 2 || jsDay === 5) {
                 data.vit += 0.4;
             } else {
                 data.agi += 0.3;
+                data.int += 0.2;
             }
 
             data.exp += 30;
@@ -727,7 +729,7 @@
                 data.exp = 0;
                 alert(`🎉 恭喜！等級提升至 LV. ${data.level}！`);
             } else {
-                alert("系統：今日訓練達成，經驗值 +30，屬性已提升！");
+                alert("系統：今日訓練達成，經驗值 +30，能力值已提升！");
             }
 
             saveData();
