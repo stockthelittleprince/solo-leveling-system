@@ -2,31 +2,781 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <title>我獨自升級系統</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solo Leveling System</title>
+    <style>
+        :root {
+            --panel-bg: rgba(5, 10, 20, 0.94);
+            --panel-border: #00f0ff;
+            --panel-glow: rgba(0, 240, 255, 0.4);
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent-cyan: #00f0ff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: url('bg.jpg') no-repeat center center fixed;
+            background-size: cover;
+            background-color: #030712;
+            color: var(--text-main);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 6, 16, 0.88);
+            z-index: -1;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 580px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .system-notification {
+            background: var(--panel-bg);
+            border: 2px solid var(--accent-cyan);
+            border-radius: 6px;
+            padding: 20px;
+            box-shadow: 0 0 30px var(--panel-glow), inset 0 0 25px rgba(0, 240, 255, 0.1);
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .system-notification.penalty-mode {
+            border-color: #ef4444;
+            background: rgba(20, 5, 5, 0.96);
+            box-shadow: 0 0 35px rgba(239, 68, 68, 0.6), inset 0 0 25px rgba(239, 68, 68, 0.2);
+        }
+
+        .system-notification.penalty-mode .notif-title,
+        .system-notification.penalty-mode .notif-icon,
+        .system-notification.penalty-mode .stat-value {
+            color: #f87171 !important;
+            border-color: #f87171 !important;
+            box-shadow: 0 0 10px #f87171 !important;
+        }
+
+        .system-notification::before {
+            content: "";
+            position: absolute;
+            top: 5px; left: 5px; right: 5px; bottom: 5px;
+            border: 1px dashed rgba(0, 240, 255, 0.3);
+            pointer-events: none;
+        }
+
+        .system-notification.penalty-mode::before {
+            border: 1px dashed rgba(239, 68, 68, 0.4);
+        }
+
+        .notif-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.3);
+            padding-bottom: 10px;
+            margin-bottom: 14px;
+        }
+
+        .system-notification.penalty-mode .notif-header {
+            border-bottom-color: rgba(239, 68, 68, 0.4);
+        }
+
+        .notif-title-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notif-icon {
+            border: 1px solid var(--accent-cyan);
+            border-radius: 50%;
+            width: 26px; height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-cyan);
+            font-weight: bold;
+            box-shadow: 0 0 8px var(--accent-cyan);
+            font-size: 0.9rem;
+        }
+
+        .notif-title {
+            color: var(--accent-cyan);
+            font-size: 1.05rem;
+            letter-spacing: 2px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+        }
+
+        .player-title-badge {
+            font-size: 0.8rem;
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 2px 8px;
+            border-radius: 4px;
+            letter-spacing: 1px;
+        }
+
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
+        .progress-bar-bg {
+            background-color: rgba(10, 15, 30, 0.9);
+            border: 1px solid rgba(0, 240, 255, 0.4);
+            height: 10px;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar-fill {
+            background: linear-gradient(90deg, #0284c7, var(--accent-cyan));
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px var(--accent-cyan);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .stat-box {
+            background: rgba(0, 240, 255, 0.03);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            padding: 6px;
+            text-align: center;
+            border-radius: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: var(--accent-cyan);
+        }
+
+        .task-box {
+            background: rgba(0, 240, 255, 0.03);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            color: var(--text-main);
+        }
+
+        .task-item input[type="checkbox"] {
+            accent-color: var(--accent-cyan);
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .system-notification.penalty-mode .task-item input[type="checkbox"] {
+            accent-color: #ef4444;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            margin-top: 6px;
+            background: #020617;
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            color: white;
+            padding: 6px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent-cyan);
+            outline: none;
+            box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            color: white;
+            border: 1px solid var(--accent-cyan);
+            padding: 10px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 8px;
+            text-align: center;
+            letter-spacing: 1px;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #0369a1, #0284c7);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
+        }
+
+        .btn:disabled {
+            background: #1e293b;
+            border-color: #475569;
+            color: #64748b;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .btn-rest {
+            background: transparent;
+            border: 1px solid var(--text-muted);
+            color: var(--text-muted);
+            box-shadow: none;
+            margin-top: 4px;
+        }
+
+        .btn-rest:hover {
+            border-color: var(--text-main);
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: none;
+        }
+
+        .secret-quest-banner {
+            background: rgba(147, 51, 234, 0.1);
+            border: 1px dashed #c084fc;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            letter-spacing: 1px;
+        }
+        .secret-quest-banner.active {
+            display: flex;
+        }
+
+        .weekly-history-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            margin-top: 12px;
+        }
+
+        .day-card {
+            background: rgba(0, 240, 255, 0.02);
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            border-radius: 4px;
+            padding: 6px 2px;
+            text-align: center;
+            font-size: 0.75rem;
+        }
+
+        .day-card.today {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 240, 255, 0.12);
+            box-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
+        }
+
+        .day-name {
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .day-card.today .day-name {
+            color: var(--accent-cyan);
+        }
+
+        .day-status {
+            font-size: 0.65rem;
+            padding: 2px 0;
+            border-radius: 2px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .status-success { color: #4ade80; background: rgba(74, 222, 128, 0.1); }
+        .status-rest { color: #38bdf8; background: rgba(56, 189, 248, 0.1); }
+        .status-failed { color: #f87171; background: rgba(248, 113, 113, 0.1); }
+        .status-pending { color: var(--text-muted); }
+
+        @keyframes flashEffect {
+            0% { border-color: #fff; box-shadow: 0 0 40px #fff; }
+            100% { border-color: var(--accent-cyan); box-shadow: 0 0 30px var(--panel-glow); }
+        }
+        .flashing {
+            animation: flashEffect 0.4s ease;
+        }
+    </style>
 </head>
 <body>
 
-    <!-- 1. 在 HTML 裡隱藏音頻元素 -->
-    <audio id="questSound" src="quest-complete.mp3" preload="auto"></audio>
+    <!-- 背景音樂 Audio 元素 (請準備 bgm.mp3 與 index.html 放同資料夾) -->
+    <audio id="bgmAudio" src="bgm.mp3" loop preload="auto"></audio>
 
-    <!-- 2. 你的任務按鈕 -->
-    <button onclick="completeTask()">完成每日任務</button>
+    <div class="container" id="main-container">
+        <!-- 玩家狀態與屬性面板 -->
+        <div class="system-notification" id="status-panel" style="padding: 15px 20px;">
+            <div class="notif-header" style="margin-bottom: 8px; border-bottom: none; padding-bottom: 0;">
+                <span style="color: var(--accent-cyan); font-weight: bold; font-size: 0.95rem; letter-spacing: 1px;" id="player-level-text">PLAYER LV. 07</span>
+                <span class="player-title-badge" id="player-title">TITLE: AWAKENED</span>
+            </div>
+            <div class="status-row" style="font-size: 0.85rem; margin-bottom: 4px; letter-spacing: 1px;">
+                <span>經驗值 (EXP)</span>
+                <span id="exp-text">72%</span>
+            </div>
+            <div class="progress-bar-bg" style="margin-bottom: 10px;">
+                <div class="progress-bar-fill" id="exp-bar" style="width: 72%;"></div>
+            </div>
+
+            <!-- 屬性表 -->
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-label">力量</div>
+                    <div class="stat-value" id="stat-str">12.4</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">敏捷</div>
+                    <div class="stat-value" id="stat-agi">11.1</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">體質</div>
+                    <div class="stat-value" id="stat-vit">13.0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">智力</div>
+                    <div class="stat-value" id="stat-int">10.5</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 每日任務面板 -->
+        <div class="system-notification" id="quest-panel">
+            <div class="notif-header">
+                <div class="notif-title-group">
+                    <div class="notif-icon" id="notif-icon-symbol">!</div>
+                    <div class="notif-title" id="notif-main-title">系統通知</div>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); letter-spacing: 1px;" id="date-label">SAT, SEP 12</div>
+            </div>
+            
+            <!-- BGM 控制列 -->
+            <div style="background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.2); padding: 6px 10px; border-radius: 4px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem;">
+                <span style="color: var(--text-muted); letter-spacing: 1px;">🎵 系統背景音樂 (BGM)</span>
+                <button onclick="toggleBGM()" id="bgm-toggle-btn" style="background: rgba(0, 240, 255, 0.2); border: 1px solid var(--accent-cyan); color: var(--accent-cyan); padding: 2px 10px; border-radius: 3px; cursor: pointer; font-weight: bold; letter-spacing: 1px;">播放 BGM</button>
+            </div>
+
+            <!-- 隱藏任務提示器 -->
+            <div class="secret-quest-banner" id="secret-quest-banner">
+                <span style="font-size: 0.8rem; color: #c084fc;">🔮 觸發隱藏任務</span>
+                <button onclick="claimSecretQuest()" style="background: #9333ea; color: white; border: none; padding: 2px 8px; border-radius: 3px; font-size: 0.75rem; cursor: pointer; font-weight: bold; letter-spacing: 1px;">領取 (+20 EXP)</button>
+            </div>
+
+            <!-- 今日訓練項目指示器 -->
+            <div style="background: rgba(0, 240, 255, 0.08); border: 1px solid var(--accent-cyan); padding: 8px 12px; border-radius: 4px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.8rem; color: var(--text-muted); letter-spacing: 1px;">今日重點：</span>
+                <span id="today-focus-text" style="font-size: 0.9rem; font-weight: bold; color: var(--accent-cyan); letter-spacing: 1px;">⚡ 核心與有氧</span>
+            </div>
+
+            <!-- 作息獨立打卡區：05:30 起床 & 22:30 就寢 -->
+            <div style="margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px;">
+                <div class="task-box" style="margin-bottom: 0;">
+                    <div class="task-item">
+                        <input type="checkbox" id="task-wakeup" onchange="handleCheckboxChange('wakeup')">
+                        <label for="task-wakeup">晨間作息：05:30 前起床 (含5分鐘緩衝)</label>
+                    </div>
+                </div>
+                <div class="task-box" style="margin-bottom: 0;">
+                    <div class="task-item">
+                        <input type="checkbox" id="task-sleep" onchange="handleCheckboxChange('sleep')">
+                        <label for="task-sleep">夜間作息：22:30 前就寢 (含5分鐘緩衝)</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 冥想與柔術學習 -->
+            <div class="task-box">
+                <div class="task-item">
+                    <input type="checkbox" id="task-meditation" onchange="handleCheckboxChange('meditation')">
+                    <label for="task-meditation">冥想訓練 (10 分鐘)</label>
+                </div>
+            </div>
+
+            <div class="task-box">
+                <div class="task-item">
+                    <input type="checkbox" id="task-bjj" onchange="handleCheckboxChange('bjj')">
+                    <label for="task-bjj">BJJ 巴西柔術技術學習 (30 分鐘)</label>
+                </div>
+                <input type="text" id="bjj-note" placeholder="輸入今天學習心得或動作筆記..." oninput="saveData()">
+            </div>
+
+            <!-- 今日訓練按鈕區 -->
+            <div style="margin-top: 10px; border-top: 1px solid rgba(0,240,255,0.2); padding-top: 10px;">
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; text-align: center; letter-spacing: 1px;" id="today-status-desc">
+                    今日狀態：<span id="daily-completion-status" style="color: var(--accent-cyan); font-weight: bold;">未完成</span>
+                </div>
+
+                <button class="btn" id="btn-complete-day" onclick="completeDailyTraining()">完成今日訓練</button>
+                <button class="btn btn-rest" id="btn-rest-mode" onclick="enterRestMode()">今日休息模式</button>
+                <button class="btn btn-rest" style="border-color: rgba(239, 68, 68, 0.4); color: #fca5a5; margin-top: 4px;" onclick="cancelRestMode()">取消休息</button>
+            </div>
+
+            <!-- 每週每日任務狀態總覽 (Mon ~ Sun) -->
+            <div style="margin-top: 14px; border-top: 1px solid rgba(0,240,255,0.2); padding-top: 10px;">
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; display: flex; justify-content: space-between; letter-spacing: 0.5px;">
+                    <span>每週狀態記錄 (05:30 起床 / 22:30 就寢)</span>
+                    <span id="current-day-indicator">今天：週六</span>
+                </div>
+                <div class="weekly-history-grid" id="weekly-grid">
+                    <!-- 動態產出 Mon ~ Sun -->
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        function completeTask() {
-            // 取得音效元素
-            var audio = document.getElementById("questSound");
-            
-            // 每次點擊時將音效重頭播放
-            audio.currentTime = 0;
-            audio.play().catch(function(error) {
-                console.log("音效播放需要使用者互動解鎖：", error);
-            });
-
-            // 這裡可以放你原本「完成任務」的邏輯（例如彈出通知、加經驗值等）
-            alert("【任務完成】您已獲得獎勵！");
+        // 任務完成真實音效
+        function playSoloLevelingSound() {
+            try {
+                const audio = new Audio('sound.mp3');
+                audio.play().catch(e => {
+                    console.log("Audio play blocked or file missing:", e);
+                });
+            } catch (e) {
+                console.log("Audio init failed", e);
+            }
         }
-    </script>
 
+        // 背景音樂 BGM 切換開關
+        let isBgmPlaying = false;
+        function toggleBGM() {
+            const bgm = document.getElementById('bgmAudio');
+            const btn = document.getElementById('bgm-toggle-btn');
+            if (!isBgmPlaying) {
+                bgm.play().then(() => {
+                    isBgmPlaying = true;
+                    btn.innerText = "暫停 BGM";
+                    btn.style.borderColor = "#4ade80";
+                    btn.style.color = "#4ade80";
+                }).catch(e => {
+                    alert("無法自動播放背景音樂，請檢查 bgm.mp3 檔案是否存在。");
+                });
+            } else {
+                bgm.pause();
+                isBgmPlaying = false;
+                btn.innerText = "播放 BGM";
+                btn.style.borderColor = "var(--accent-cyan)";
+                btn.style.color = "var(--accent-cyan)";
+            }
+        }
+
+        const now = new Date();
+        const todayDateStr = now.toISOString().split('T')[0]; 
+        const jsDay = now.getDay(); 
+        const currentDayIndex = jsDay === 0 ? 6 : jsDay - 1;
+        const currentHour = now.getHours();
+        const currentMinute = now.getMinutes();
+        const currentTimeVal = currentHour * 60 + currentMinute;
+
+        const options = { weekday: 'short', month: 'short', day: 'numeric' };
+        document.getElementById('date-label').innerText = now.toLocaleDateString('en-US', options).toUpperCase();
+
+        const focusMap = {
+            1: "💪 手部訓練",
+            2: "🦵 腿部訓練",
+            3: "⚡ 核心與有氧",
+            4: "💪 手部訓練",
+            5: "🦵 腿部訓練",
+            6: "⚡ 核心與有氧",
+            0: "🛡️ 彈性休息日"
+        };
+        document.getElementById('today-focus-text').innerText = focusMap[jsDay];
+
+        function getWeekNumber(d) {
+            d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+            var yearStart = new Date(Date.UTC(d.getFullYear(),0,1));
+            var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+            return `${d.getFullYear()}-W${weekNo}`;
+        }
+        const currentWeekNumber = getWeekNumber(now);
+
+        let data = JSON.parse(localStorage.getItem('solo_system_data_v9')) || {
+            level: 7,
+            exp: 72,
+            str: 12.4,
+            agi: 11.1,
+            vit: 13.0,
+            int: 10.5,
+            lastDate: todayDateStr,
+            wakeup: false,
+            sleep: false,
+            meditation: false,
+            bjj: false,
+            bjjNote: "",
+            lastWeek: currentWeekNumber,
+            weeklyStatus: ['pending', 'pending', 'pending', 'pending', 'pending', 'pending', 'pending'],
+            secretClaimed: false
+        };
+
+        if (data.lastDate !== todayDateStr) {
+            data.wakeup = false;
+            data.sleep = false;
+            data.meditation = false;
+            data.bjj = false;
+            data.bjjNote = "";
+            data.lastDate = todayDateStr;
+            data.secretClaimed = false;
+        }
+
+        if (data.lastWeek !== currentWeekNumber) {
+            data.lastWeek = currentWeekNumber;
+            data.weeklyStatus = ['pending', 'pending', 'pending', 'pending', 'pending', 'pending', 'pending'];
+        }
+
+        for (let i = 0; i < currentDayIndex; i++) {
+            if (data.weeklyStatus[i] === 'pending') {
+                data.weeklyStatus[i] = 'failed';
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('player-level-text').innerText = `PLAYER LV. ${data.level < 10 ? '0' + data.level : data.level}`;
+            document.getElementById('exp-text').innerText = data.exp + "%";
+            document.getElementById('exp-bar').style.width = data.exp + "%";
+            
+            document.getElementById('stat-str').innerText = data.str.toFixed(1);
+            document.getElementById('stat-agi').innerText = data.agi.toFixed(1);
+            document.getElementById('stat-vit').innerText = data.vit.toFixed(1);
+            document.getElementById('stat-int').innerText = data.int.toFixed(1);
+
+            document.getElementById('task-wakeup').checked = data.wakeup;
+            document.getElementById('task-sleep').checked = data.sleep;
+            document.getElementById('task-meditation').checked = data.meditation;
+            document.getElementById('task-bjj').checked = data.bjj;
+            document.getElementById('bjj-note').value = data.bjjNote;
+
+            const currentStatus = data.weeklyStatus[currentDayIndex];
+            
+            // 早起緩衝：05:35 (335 分鐘)；就寢緩衝：22:35 (1355 分鐘)
+            const isMorningMissed = (currentTimeVal > 335 && !data.wakeup);
+            const isNightMissed = (currentTimeVal > 1355 && !data.sleep);
+            const isPenalty = (isMorningMissed || isNightMissed) && currentStatus !== 'success' && currentStatus !== 'rest';
+
+            const qPanel = document.getElementById('quest-panel');
+            const sPanel = document.getElementById('status-panel');
+            const mainTitle = document.getElementById('notif-main-title');
+            const iconSymbol = document.getElementById('notif-icon-symbol');
+            const statusDesc = document.getElementById('daily-completion-status');
+            const btnComplete = document.getElementById('btn-complete-day');
+
+            if (isPenalty) {
+                qPanel.classList.add('penalty-mode');
+                sPanel.classList.add('penalty-mode');
+                mainTitle.innerText = "警告：未通過日常考核！";
+                iconSymbol.innerText = "⚠";
+                data.weeklyStatus[currentDayIndex] = 'failed';
+                statusDesc.innerText = "警告：作息未達標，強制進入懲罰狀態！";
+                statusDesc.style.color = "#f87171";
+            } else {
+                qPanel.classList.remove('penalty-mode');
+                sPanel.classList.remove('penalty-mode');
+                mainTitle.innerText = "系統通知";
+                iconSymbol.innerText = "!";
+
+                if (currentStatus === 'success') {
+                    statusDesc.innerText = "成功 (已完成)";
+                    statusDesc.style.color = "#4ade80";
+                    btnComplete.disabled = true;
+                    btnComplete.innerText = "今日訓練已完成";
+                } else if (currentStatus === 'rest') {
+                    statusDesc.innerText = "休息模式";
+                    statusDesc.style.color = "#38bdf8";
+                    btnComplete.disabled = true;
+                } else {
+                    statusDesc.innerText = "未完成";
+                    statusDesc.style.color = "var(--accent-cyan)";
+                    btnComplete.disabled = false;
+                    btnComplete.innerText = "完成今日訓練";
+                }
+            }
+
+            if (!data.secretClaimed && data.meditation) {
+                document.getElementById('secret-quest-banner').classList.add('active');
+            } else {
+                document.getElementById('secret-quest-banner').classList.remove('active');
+            }
+
+            const daysNames = ['週一', '週二', '週三', '週四', '週五', '週六', '週日'];
+            let gridHTML = '';
+            for (let i = 0; i < 7; i++) {
+                let statusClass = 'status-pending';
+                let statusText = '---';
+                
+                if (data.weeklyStatus[i] === 'success') {
+                    statusClass = 'status-success';
+                    statusText = '成功';
+                } else if (data.weeklyStatus[i] === 'rest') {
+                    statusClass = 'status-rest';
+                    statusText = '休息';
+                } else if (data.weeklyStatus[i] === 'failed') {
+                    statusClass = 'status-failed';
+                    statusText = '失敗';
+                }
+
+                let isToday = (i === currentDayIndex) ? 'today' : '';
+                gridHTML += `
+                    <div class="day-card ${isToday}">
+                        <div class="day-name">${daysNames[i]}</div>
+                        <div class="day-status ${statusClass}">${statusText}</div>
+                    </div>
+                `;
+            }
+            document.getElementById('weekly-grid').innerHTML = gridHTML;
+            document.getElementById('current-day-indicator').innerText = `今天：${daysNames[currentDayIndex]}`;
+
+            let title = "已覺醒者";
+            if (data.level >= 10) title = "第二階段獵人";
+            if (currentStatus === 'success') title = "極限突破者";
+            if (currentStatus === 'rest') title = "休養中的戰士";
+            if (isPenalty) title = "受懲罰者";
+            document.getElementById('player-title').innerText = `稱號：${title}`;
+        }
+
+        function saveData() {
+            data.wakeup = document.getElementById('task-wakeup').checked;
+            data.sleep = document.getElementById('task-sleep').checked;
+            data.meditation = document.getElementById('task-meditation').checked;
+            data.bjj = document.getElementById('task-bjj').checked;
+            data.bjjNote = document.getElementById('bjj-note').value;
+            localStorage.setItem('solo_system_data_v9', JSON.stringify(data));
+        }
+
+        function handleCheckboxChange(taskName) {
+            saveData();
+            const isChecked = document.getElementById('task-' + taskName).checked;
+            if (isChecked) {
+                playSoloLevelingSound();
+                triggerFlash();
+            }
+        }
+
+        function triggerFlash() {
+            const panel = document.getElementById('quest-panel');
+            panel.classList.add('flashing');
+            setTimeout(() => panel.classList.remove('flashing'), 400);
+        }
+
+        function completeDailyTraining() {
+            if (data.weeklyStatus[currentDayIndex] === 'success' || data.weeklyStatus[currentDayIndex] === 'rest') {
+                alert("今日已經完成或已進入休息，無法重複結算！");
+                return;
+            }
+
+            playSoloLevelingSound();
+            triggerFlash();
+            data.weeklyStatus[currentDayIndex] = 'success';
+
+            if (jsDay === 1 || jsDay === 4) {
+                data.str += 0.4;
+            } else if (jsDay === 2 || jsDay === 5) {
+                data.vit += 0.4;
+            } else {
+                data.agi += 0.3;
+            }
+
+            data.exp += 30;
+            if (data.exp >= 100) {
+                data.level++;
+                data.exp = 0;
+                alert(`🎉 恭喜！等級提升至 LV. ${data.level}！`);
+            } else {
+                alert("系統：今日訓練達成，經驗值 +30，屬性已提升！");
+            }
+
+            saveData();
+            updateUI();
+        }
+
+        function enterRestMode() {
+            if (data.weeklyStatus[currentDayIndex] === 'success') {
+                alert("今日已完成訓練，無需進入休息模式！");
+                return;
+            }
+            data.weeklyStatus[currentDayIndex] = 'rest';
+            data.vit += 0.1;
+            triggerFlash();
+            alert("⚠ 休息模式已啟動：今日已切換為休息。");
+            saveData();
+            updateUI();
+        }
+
+        function cancelRestMode() {
+            if (data.weeklyStatus[currentDayIndex] === 'rest') {
+                data.weeklyStatus[currentDayIndex] = 'pending';
+                data.vit = Math.max(10, data.vit - 0.1);
+                triggerFlash();
+                alert("系統：已取消休息模式，恢復今日訓練待命狀態。");
+                saveData();
+                updateUI();
+            } else {
+                alert("目前並未處於休息狀態！");
+            }
+        }
+
+        function claimSecretQuest() {
+            data.secretClaimed = true;
+            data.exp += 20;
+            playSoloLevelingSound();
+            if (data.exp >= 100) {
+                data.level++;
+                data.exp = 0;
+                alert(`🎉 隱藏任務完成！等級提升至 LV. ${data.level}！`);
+            } else {
+                alert("系統：隱藏任務解鎖成功，經驗值 +20。");
+            }
+            triggerFlash();
+            saveData();
+            updateUI();
+        }
+
+        updateUI();
+    </script>
 </body>
 </html>
