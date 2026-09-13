@@ -405,18 +405,18 @@
                 <span id="today-focus-text" style="font-size: 0.9rem; font-weight: bold; color: var(--accent-cyan); letter-spacing: 1px;">⚡ 核心與有氧</span>
             </div>
 
-            <!-- 作息獨立打卡區：05:00 起床 & 22:00 就寢 -->
+            <!-- 作息獨立打卡區：05:30 起床 & 22:30 就寢 -->
             <div style="margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px;">
                 <div class="task-box" style="margin-bottom: 0;">
                     <div class="task-item">
                         <input type="checkbox" id="task-wakeup" onchange="handleCheckboxChange('wakeup')">
-                        <label for="task-wakeup">晨間作息：05:00 準時起床</label>
+                        <label for="task-wakeup">晨間作息：05:30 前起床 (含5分鐘緩衝)</label>
                     </div>
                 </div>
                 <div class="task-box" style="margin-bottom: 0;">
                     <div class="task-item">
                         <input type="checkbox" id="task-sleep" onchange="handleCheckboxChange('sleep')">
-                        <label for="task-sleep">夜間作息：22:00 前就寢</label>
+                        <label for="task-sleep">夜間作息：22:30 前就寢 (含5分鐘緩衝)</label>
                     </div>
                 </div>
             </div>
@@ -451,7 +451,7 @@
             <!-- 每週每日任務狀態總覽 (Mon ~ Sun) -->
             <div style="margin-top: 14px; border-top: 1px solid rgba(0,240,255,0.2); padding-top: 10px;">
                 <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; display: flex; justify-content: space-between; letter-spacing: 0.5px;">
-                    <span>每週狀態記錄 (05:00 起床 / 22:00 就寢)</span>
+                    <span>每週狀態記錄 (05:30 起床 / 22:30 就寢)</span>
                     <span id="current-day-indicator">今天：週六</span>
                 </div>
                 <div class="weekly-history-grid" id="weekly-grid">
@@ -462,51 +462,19 @@
     </div>
 
     <script>
-        // Web Audio API 模擬《我獨自升級》任務完成音效
-        let audioCtx = null;
-
         function playSoloLevelingSound() {
             try {
-                if (!audioCtx) {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                }
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                }
-
-                const nowTime = audioCtx.currentTime;
-
-                const osc1 = audioCtx.createOscillator();
-                const osc2 = audioCtx.createOscillator();
-                const gainNode = audioCtx.createGain();
-
-                osc1.type = 'triangle';
-                osc2.type = 'square';
-
-                osc1.frequency.setValueAtTime(587.33, nowTime); 
-                osc1.frequency.setValueAtTime(880.00, nowTime + 0.08); 
-                osc1.frequency.setValueAtTime(1174.66, nowTime + 0.18); 
-
-                osc2.frequency.setValueAtTime(293.66, nowTime); 
-                osc2.frequency.setValueAtTime(440.00, nowTime + 0.08); 
-
-                gainNode.gain.setValueAtTime(0.3, nowTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, nowTime + 0.45);
-
-                osc1.connect(gainNode);
-                osc2.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-
-                osc1.start(nowTime);
-                osc2.start(nowTime);
-                osc1.stop(nowTime + 0.45);
-                osc2.stop(nowTime + 0.45);
+                const audio = new Audio('sound.mp3');
+                audio.play().catch(e => {
+                    console.log("Audio play blocked or file missing:", e);
+                });
             } catch (e) {
-                console.log("Audio play blocked or not supported", e);
+                console.log("Audio init failed", e);
             }
         }
 
         const now = new Date();
+        const todayDateStr = now.toISOString().split('T')[0]; // 取得格式 YYYY-MM-DD 用於每天重製
         const jsDay = now.getDay(); 
         const currentDayIndex = jsDay === 0 ? 6 : jsDay - 1;
         const currentHour = now.getHours();
@@ -536,13 +504,14 @@
         }
         const currentWeekNumber = getWeekNumber(now);
 
-        let data = JSON.parse(localStorage.getItem('solo_system_data_v6')) || {
+        let data = JSON.parse(localStorage.getItem('solo_system_data_v8')) || {
             level: 7,
             exp: 72,
             str: 12.4,
             agi: 11.1,
             vit: 13.0,
             int: 10.5,
+            lastDate: todayDateStr,
             wakeup: false,
             sleep: false,
             meditation: false,
@@ -553,15 +522,20 @@
             secretClaimed: false
         };
 
-        if (data.lastWeek !== currentWeekNumber) {
+        // 檢查是否跨日：如果是新的一天，自動重製當日的勾選清單
+        if (data.lastDate !== todayDateStr) {
             data.wakeup = false;
             data.sleep = false;
             data.meditation = false;
             data.bjj = false;
+            data.bjjNote = "";
+            data.lastDate = todayDateStr;
+            data.secretClaimed = false;
+        }
+
+        if (data.lastWeek !== currentWeekNumber) {
             data.lastWeek = currentWeekNumber;
             data.weeklyStatus = ['pending', 'pending', 'pending', 'pending', 'pending', 'pending', 'pending'];
-            data.secretClaimed = false;
-            localStorage.setItem('solo_system_data_v6', JSON.stringify(data));
         }
 
         for (let i = 0; i < currentDayIndex; i++) {
@@ -587,8 +561,13 @@
             document.getElementById('bjj-note').value = data.bjjNote;
 
             const currentStatus = data.weeklyStatus[currentDayIndex];
-            const isLateNight = currentTimeVal >= 1320; // 22:00 以後
-            const isPenalty = isLateNight && (currentStatus === 'pending' || currentStatus === 'failed');
+            
+            // 逾時檢查：
+            // 早起緩衝：05:35 (335 分鐘) 以後若未勾選算違規
+            // 就寢緩衝：22:35 (1355 分鐘) 以後若未勾選算違規
+            const isMorningMissed = (currentTimeVal > 335 && !data.wakeup);
+            const isNightMissed = (currentTimeVal > 1355 && !data.sleep);
+            const isPenalty = (isMorningMissed || isNightMissed) && currentStatus !== 'success' && currentStatus !== 'rest';
 
             const qPanel = document.getElementById('quest-panel');
             const sPanel = document.getElementById('status-panel');
@@ -600,10 +579,10 @@
             if (isPenalty) {
                 qPanel.classList.add('penalty-mode');
                 sPanel.classList.add('penalty-mode');
-                mainTitle.innerText = "警告：懲罰區";
+                mainTitle.innerText = "警告：未通過日常考核！";
                 iconSymbol.innerText = "⚠";
                 data.weeklyStatus[currentDayIndex] = 'failed';
-                statusDesc.innerText = "失敗 (已逾時)";
+                statusDesc.innerText = "警告：作息未達標，強制進入懲罰狀態！";
                 statusDesc.style.color = "#f87171";
             } else {
                 qPanel.classList.remove('penalty-mode');
@@ -676,7 +655,7 @@
             data.meditation = document.getElementById('task-meditation').checked;
             data.bjj = document.getElementById('task-bjj').checked;
             data.bjjNote = document.getElementById('bjj-note').value;
-            localStorage.setItem('solo_system_data_v6', JSON.stringify(data));
+            localStorage.setItem('solo_system_data_v8', JSON.stringify(data));
         }
 
         function handleCheckboxChange(taskName) {
