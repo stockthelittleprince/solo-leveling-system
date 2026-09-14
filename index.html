@@ -408,15 +408,10 @@
                 <button onclick="claimSecretQuest()" style="background: #9333ea; color: white; border: none; padding: 2px 8px; border-radius: 3px; font-size: 0.75rem; cursor: pointer; font-weight: bold; letter-spacing: 1px;">領取 (+20 EXP)</button>
             </div>
 
-            <!-- 今日訓練項目指示器與詳細運動內容註記 -->
-            <div style="background: rgba(0, 240, 255, 0.08); border: 1px solid var(--accent-cyan); padding: 10px 12px; border-radius: 4px; margin-bottom: 10px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <span style="font-size: 0.8rem; color: var(--text-muted); letter-spacing: 1px;">今日訓練重點：</span>
-                    <span id="today-focus-text" style="font-size: 0.9rem; font-weight: bold; color: var(--accent-cyan); letter-spacing: 1px;">⚡ 核心與柔術</span>
-                </div>
-                <div style="font-size: 0.8rem; color: #38bdf8; letter-spacing: 0.5px; border-top: 1px dashed rgba(0,240,255,0.2); padding-top: 4px;" id="today-workout-detail">
-                    📝 運動內容註記：載入中...
-                </div>
+            <!-- 今日訓練項目指示器 -->
+            <div style="background: rgba(0, 240, 255, 0.08); border: 1px solid var(--accent-cyan); padding: 8px 12px; border-radius: 4px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.8rem; color: var(--text-muted); letter-spacing: 1px;">今日重點：</span>
+                <span id="today-focus-text" style="font-size: 0.82rem; font-weight: bold; color: var(--accent-cyan); letter-spacing: 1px; line-height: 1.55; text-align: right;">⚡ 核心與有氧</span>
             </div>
 
             <!-- 作息獨立打卡區：05:30 起床 & 22:30 就寢 -->
@@ -523,28 +518,15 @@
         document.getElementById('date-label').innerText = now.toLocaleDateString('en-US', options).toUpperCase();
 
         const focusMap = {
-            1: "💪 手部訓練",
-            2: "🦵 腿部訓練",
-            3: "⚡ 核心與冥想",
-            4: "💪 手部訓練",
-            5: "🦵 腿部訓練",
-            6: "⚡ 核心與柔術",
-            0: "🛡️ 彈性休息日"
+            1: "💪 手<br>二頭彎舉 13×3<br>划船 13×4<br>負重三頭肌撐體 40×3<br>單槓 10×3",
+            2: "🦵 腿<br>腿（肌力）",
+            3: "🔥 肚子<br>仰臥＋核心＋平板<br>＋有氧影片",
+            4: "💪 手<br>二頭彎舉 13×3<br>划船 13×4<br>負重三頭肌撐體 40×3<br>單槓 10×3",
+            5: "🦵 腿<br>腿（肌力）",
+            6: "🔥 肚子<br>仰臥＋核心＋平板<br>＋有氧影片",
+            0: "🛡️ 休息"
         };
-
-        // 運動內容明細對照表（可根據您的訓練表自由調整文字）
-        const workoutDetailMap = {
-            1: "手部訓練：二頭彎舉、三頭下壓、握力與前臂強化",
-            2: "腿部訓練：深蹲、弓步蹲、腿推與核心穩定",
-            3: "核心與冥想：棒式、捲腹、10分鐘深度冥想呼吸",
-            4: "手部訓練：槓鈴彎舉、三頭肌屈伸、手臂肌耐力訓練",
-            5: "腿部訓練：硬舉、單腿深蹲、小腿肌群訓練",
-            6: "核心與柔術：30分鐘 BJJ 動作拆解、防守與固定技巧",
-            0: "彈性休息日：放鬆拉伸、隨意活動或完全休養"
-        };
-
-        document.getElementById('today-focus-text').innerText = focusMap[jsDay];
-        document.getElementById('today-workout-detail').innerText = "📝 運動內容註記：" + workoutDetailMap[jsDay];
+        document.getElementById('today-focus-text').innerHTML = focusMap[jsDay];
 
         function getWeekNumber(d) {
             d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
@@ -555,7 +537,7 @@
         }
         const currentWeekNumber = getWeekNumber(now);
 
-        let data = JSON.parse(localStorage.getItem('solo_system_data_v11')) || {
+        let data = JSON.parse(localStorage.getItem('solo_system_data_v10')) || {
             level: 7,
             exp: 72,
             str: 12.4,
@@ -703,7 +685,7 @@
             data.meditation = document.getElementById('task-meditation').checked;
             data.bjj = document.getElementById('task-bjj').checked;
             data.bjjNote = document.getElementById('bjj-note').value;
-            localStorage.setItem('solo_system_data_v11', JSON.stringify(data));
+            localStorage.setItem('solo_system_data_v10', JSON.stringify(data));
         }
 
         function handleCheckboxChange(taskName) {
@@ -731,6 +713,7 @@
             triggerFlash();
             data.weeklyStatus[currentDayIndex] = 'success';
 
+            // 根據不同天數給予對應屬性成長
             if (jsDay === 1 || jsDay === 4) {
                 data.str += 0.4;
             } else if (jsDay === 2 || jsDay === 5) {
