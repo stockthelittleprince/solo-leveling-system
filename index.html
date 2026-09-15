@@ -411,7 +411,7 @@
             <!-- 今日訓練項目指示器 -->
             <div style="background: rgba(0, 240, 255, 0.08); border: 1px solid var(--accent-cyan); padding: 8px 12px; border-radius: 4px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-size: 0.8rem; color: var(--text-muted); letter-spacing: 1px;">今日重點：</span>
-                <span id="today-focus-text" style="font-size: 0.82rem; font-weight: bold; color: var(--accent-cyan); letter-spacing: 1px; line-height: 1.55; text-align: right;">⚡ 核心與有氧</span>
+                <span id="today-focus-text" style="font-size: 0.9rem; font-weight: bold; color: var(--accent-cyan); letter-spacing: 1px;">⚡ 核心與有氧</span>
             </div>
 
             <!-- 作息獨立打卡區：05:30 起床 & 22:30 就寢 -->
@@ -507,7 +507,7 @@
         }
 
         const now = new Date();
-        const todayDateStr = now.toISOString().split('T')[0]; 
+        const todayDateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`; 
         const jsDay = now.getDay(); 
         const currentDayIndex = jsDay === 0 ? 6 : jsDay - 1;
         const currentHour = now.getHours();
@@ -517,16 +517,23 @@
         const options = { weekday: 'short', month: 'short', day: 'numeric' };
         document.getElementById('date-label').innerText = now.toLocaleDateString('en-US', options).toUpperCase();
 
-        const focusMap = {
-            1: "💪 手<br>二頭彎舉 13×3<br>划船 13×4<br>負重三頭肌撐體 40×3<br>單槓 10×3",
-            2: "🦵 腿<br>腿（肌力）",
-            3: "🔥 肚子<br>仰臥＋核心＋平板<br>＋有氧影片",
-            4: "💪 手<br>二頭彎舉 13×3<br>划船 13×4<br>負重三頭肌撐體 40×3<br>單槓 10×3",
-            5: "🦵 腿<br>腿（肌力）",
-            6: "🔥 肚子<br>仰臥＋核心＋平板<br>＋有氧影片",
-            0: "🛡️ 休息"
-        };
-        document.getElementById('today-focus-text').innerHTML = focusMap[jsDay];
+        // 每週固定 6 個訓練項目：手×2、腿×2、肚子×2。
+        // 休息日不消耗訓練循環；休息後下一個訓練日仍接著做尚未完成的項目。
+        const trainingCycle = [
+            { key: "hand", title: "💪 手", html: "💪 手<br>二頭彎舉 13×3<br>划船 13×4<br>負重三頭肌撐體 40×3<br>單槓 10×3" },
+            { key: "leg", title: "🦵 腿", html: "🦵 腿<br>腿（肌力）" },
+            { key: "core", title: "🔥 肚子", html: "🔥 肚子<br>仰臥＋核心＋平板<br>＋有氧影片" },
+            { key: "hand", title: "💪 手", html: "💪 手<br>二頭彎舉 13×3<br>划船 13×4<br>負重三頭肌撐體 40×3<br>單槓 10×3" },
+            { key: "leg", title: "🦵 腿", html: "🦵 腿<br>腿（肌力）" },
+            { key: "core", title: "🔥 肚子", html: "🔥 肚子<br>仰臥＋核心＋平板<br>＋有氧影片" }
+        ];
+
+        function getNextTrainingIndex(statusArray) {
+            for (let i = 0; i < trainingCycle.length; i++) {
+                if (statusArray[i] !== 'success') return i;
+            }
+            return 6;
+        }
 
         function getWeekNumber(d) {
             d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
@@ -538,7 +545,7 @@
         const currentWeekNumber = getWeekNumber(now);
 
         let data = JSON.parse(localStorage.getItem('solo_system_data_v10')) || {
-            level: 7,
+            level: 8,
             exp: 72,
             str: 12.4,
             agi: 11.1,
@@ -552,9 +559,17 @@
             bjjNote: "",
             lastWeek: currentWeekNumber,
             weeklyStatus: ['pending', 'pending', 'pending', 'pending', 'pending', 'pending', 'pending'],
+            trainingStatus: ['pending', 'pending', 'pending', 'pending', 'pending', 'pending'],
             secretClaimed: false
         };
 
+        // 等級至少維持目前的 LV. 08；如果未來已升到更高等級，則不會被降回 8。
+        if (typeof data.level !== 'number' || data.level < 8) {
+            data.level = 8;
+        }
+
+        // 每到新的一天，自動清除「每日任務」的打勾與柔術筆記。
+        // 每週訓練狀態 weeklyStatus 不會被清除，因此不影響每週紀錄。
         if (data.lastDate !== todayDateStr) {
             data.wakeup = false;
             data.sleep = false;
@@ -563,11 +578,17 @@
             data.bjjNote = "";
             data.lastDate = todayDateStr;
             data.secretClaimed = false;
+            localStorage.setItem('solo_system_data_v10', JSON.stringify(data));
+        }
+
+        if (!Array.isArray(data.trainingStatus) || data.trainingStatus.length !== 6) {
+            data.trainingStatus = ['pending', 'pending', 'pending', 'pending', 'pending', 'pending'];
         }
 
         if (data.lastWeek !== currentWeekNumber) {
             data.lastWeek = currentWeekNumber;
             data.weeklyStatus = ['pending', 'pending', 'pending', 'pending', 'pending', 'pending', 'pending'];
+            data.trainingStatus = ['pending', 'pending', 'pending', 'pending', 'pending', 'pending'];
         }
 
         for (let i = 0; i < currentDayIndex; i++) {
@@ -593,6 +614,15 @@
             document.getElementById('bjj-note').value = data.bjjNote;
 
             const currentStatus = data.weeklyStatus[currentDayIndex];
+            const currentTrainingIndex = getNextTrainingIndex(data.trainingStatus);
+            if (currentStatus === 'rest') {
+                document.getElementById('today-focus-text').innerHTML = "🛡️ 休息";
+            } else if (currentTrainingIndex < 6) {
+                document.getElementById('today-focus-text').innerHTML = trainingCycle[currentTrainingIndex].html;
+            } else {
+                document.getElementById('today-focus-text').innerHTML = "🏆 本週訓練已完成";
+            }
+
             
             // 早起緩衝：05:35 (335 分鐘)；就寢緩衝：22:35 (1355 分鐘)
             const isMorningMissed = (currentTimeVal > 335 && !data.wakeup);
@@ -709,16 +739,25 @@
                 return;
             }
 
+            const trainingIndex = getNextTrainingIndex(data.trainingStatus);
+            if (trainingIndex >= 6) {
+                alert("系統：本週 6 個訓練項目都已完成！");
+                return;
+            }
+
             playSoloLevelingSound();
             triggerFlash();
+
+            // 完成一次訓練才消耗一個本週訓練名額；休息不會消耗。
+            data.trainingStatus[trainingIndex] = 'success';
             data.weeklyStatus[currentDayIndex] = 'success';
 
-            // 根據不同天數給予對應屬性成長
-            if (jsDay === 1 || jsDay === 4) {
+            const trainingKey = trainingCycle[trainingIndex].key;
+            if (trainingKey === 'hand') {
                 data.str += 0.4;
-            } else if (jsDay === 2 || jsDay === 5) {
+            } else if (trainingKey === 'leg') {
                 data.vit += 0.4;
-            } else {
+            } else if (trainingKey === 'core') {
                 data.agi += 0.3;
                 data.int += 0.2;
             }
@@ -729,7 +768,7 @@
                 data.exp = 0;
                 alert(`🎉 恭喜！等級提升至 LV. ${data.level}！`);
             } else {
-                alert("系統：今日訓練達成，經驗值 +30，能力值已提升！");
+                alert(`系統：${trainingCycle[trainingIndex].title}訓練達成，經驗值 +30，能力值已提升！`);
             }
 
             saveData();
